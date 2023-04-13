@@ -1,5 +1,5 @@
-using RIrtWrapper: KernSmoothIRT
-using RIrtWrapper: Mirt
+using RIrtWrappers: KernSmoothIRT
+using RIrtWrappers: Mirt
 using Optim
 
 
