@@ -23,8 +23,8 @@ jobs:
         run: |
           julia --project=docs/ -e 'using Pkg;
                                     Pkg.develop([
-                                      PackageSpec(url="https://github.com/JuliaPsychometricsBazzar/PsychometricsBazzarBase.jl.git"),
-                                      PackageSpec(url="https://github.com/JuliaPsychometricsBazzar/FittedItemBanks.jl.git"),
+                                      PackageSpec(url="https://github.com/JuliaPsychometricsBazaar/PsychometricsBazaarBase.jl.git"),
+                                      PackageSpec(url="https://github.com/JuliaPsychometricsBazaar/FittedItemBanks.jl.git"),
                                       PackageSpec(path=pwd())
                                     ]);
                                     Pkg.add(Pkg.PackageSpec(name="GitHubActions", version="0.1"));

@@ -257,7 +257,7 @@ uuid = "6a86dc24-6348-571c-b903-95158fe2bd41"
 version = "2.18.0"
 
 [[deps.FittedItemBanks]]
-deps = ["ArraysOfArrays", "Distributions", "DocStringExtensions", "Lazy", "LinearAlgebra", "PsychometricsBazzarBase", "Random", "Setfield", "StaticArrays"]
+deps = ["ArraysOfArrays", "Distributions", "DocStringExtensions", "Lazy", "LinearAlgebra", "PsychometricsBazaarBase", "Random", "Setfield", "StaticArrays"]
 path = "../../FittedItemBanks.jl"
 uuid = "3f797b09-34e4-41d7-acf6-3302ae3248a5"
 version = "0.1.0"
@@ -596,10 +596,10 @@ version = "0.5.3"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
-[[deps.PsychometricsBazzarBase]]
+[[deps.PsychometricsBazaarBase]]
 deps = ["Cuba", "Cubature", "Distributions", "DocStringExtensions", "FillArrays", "HCubature", "Interpolations", "Lazy", "LinearAlgebra", "MacroTools", "Measurements", "MonteCarloIntegration", "NLSolversBase", "Optim", "OrderedCollections", "QuadGK", "UnPack"]
-path = "../../PsychometricsBazzarBase.jl"
-uuid = "8a5e4057-03e0-4a42-ba57-0eb88ce604f5"
+path = "../../PsychometricsBazaarBase.jl"
+uuid = "b0d9cada-d963-45e9-a4c6-4746243987f1"
 version = "0.1.0"
 
 [[deps.QuadGK]]
