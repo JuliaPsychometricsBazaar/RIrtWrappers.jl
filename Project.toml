@@ -12,7 +12,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 CondaPkg = "0.2"
-FittedItemBanks = "0.1"
+FittedItemBanks = "0.2.0"
 RCall = "0.13"
 
 [extras]
