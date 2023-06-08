@@ -1,3 +1,4 @@
+using DataFrames
 using RIrtWrappers: KernSmoothIRT
 using RIrtWrappers: Mirt
 using Optim
