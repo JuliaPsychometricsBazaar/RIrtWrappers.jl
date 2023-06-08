@@ -36,7 +36,14 @@ function fix_rcall(explicit)
     need_update = false
     try
         include(rcall_path * "/deps/deps.jl")
-        need_update = realpath(target_rhome) != realpath(Rhome)
+        real_r_home = nothing
+        try
+            real_r_home = realpath(Rhome)
+        catch e
+            need_update = true
+        else
+            need_update = realpath(target_rhome) != real_r_home
+        end
     catch err
         if err isa SystemError
             # RCall has not been built yet
