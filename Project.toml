@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FittedItemBanks = "3f797b09-34e4-41d7-acf6-3302ae3248a5"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
@@ -17,9 +18,8 @@ RCall = "0.13"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DataFrames", "Optim", "Test"]
+test = ["Aqua", "Optim", "Test"]
