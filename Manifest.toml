@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0"
 manifest_format = "2.0"
-project_hash = "3b7a618eb2f2c07e1f9a794e30ca1e30c0fe2576"
+project_hash = "7dd2e228c66ef65e481f8f3e16ea244ce6aa7333"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -272,7 +272,7 @@ version = "2.21.1"
 deps = ["ArraysOfArrays", "Distributions", "DocStringExtensions", "Lazy", "LinearAlgebra", "PsychometricsBazaarBase", "Random", "Setfield", "StaticArrays"]
 path = "../FittedItemBanks.jl"
 uuid = "3f797b09-34e4-41d7-acf6-3302ae3248a5"
-version = "0.2.0"
+version = "0.3.0"
 
 [[deps.Formatting]]
 deps = ["Printf"]
