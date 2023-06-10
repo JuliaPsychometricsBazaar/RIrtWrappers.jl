@@ -6,6 +6,7 @@ module Mirt
 using CondaPkg
 using RCall
 using FittedItemBanks
+using DataFrames
 
 export fit_mirt, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
 
