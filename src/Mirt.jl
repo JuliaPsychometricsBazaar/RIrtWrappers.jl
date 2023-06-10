@@ -33,8 +33,8 @@ Fit a Generalized Partial Credit Model (GPCM) to the data in `df`.
 """
 function fit_gpcm(df; kwargs...)
     params = fit_mirt(df; model=1, itemtype="gpcm", kwargs...)
-    discriminations = convert(Matrix, select(params, r"a\d+"))
-    cut_points = convert(Matrix, select(params, r"d\d+"))
+    discriminations = Matrix{Float64}(select(params, r"a\d+"))
+    cut_points = Matrix{Float64}(select(params, r"d\d+"))
     GPCMItemBank(discriminations, cut_points), params[!, "label"]
 end
 
