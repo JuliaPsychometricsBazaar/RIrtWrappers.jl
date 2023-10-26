@@ -11,6 +11,12 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
+[weakdeps]
+ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
+
+[extensions]
+MirtCat = "ComputerAdaptiveTesting"
+
 [compat]
 CondaPkg = "0.2"
 DataFrames = "^1.5.0"
