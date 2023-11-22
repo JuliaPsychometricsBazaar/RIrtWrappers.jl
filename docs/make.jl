@@ -1,5 +1,6 @@
 using RIrtWrappers
 using Documenter
+using Documenter.Remotes: GitHub
 
 format = Documenter.HTML(
     prettyurls=get(ENV, "CI", "false") == "true",
@@ -9,7 +10,7 @@ format = Documenter.HTML(
 makedocs(;
     modules=[RIrtWrappers],
     authors="Frankie Robertson",
-    repo="https://github.com/JuliaPsychometricsBazaar/RIrtWrappers.jl/blob/{commit}{path}#{line}",
+    repo = GitHub("JuliaPsychometricsBazaar", "RIrtWrappers.jl"),
     sitename="RIrtWrappers.jl",
     format=format,
     pages=[
