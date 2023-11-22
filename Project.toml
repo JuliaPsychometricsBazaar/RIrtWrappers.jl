@@ -4,8 +4,11 @@ authors = ["Frankie Robertson <frankie@robertson.name>"]
 version = "0.1.0"
 
 [deps]
+ArraysOfArrays = "65a8f2f4-9b39-5baf-92e2-a9cc46fdf018"
+BSplines = "488c2830-172b-11e9-1591-253b8a7df96d"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
 FittedItemBanks = "3f797b09-34e4-41d7-acf6-3302ae3248a5"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
@@ -20,7 +23,7 @@ MirtCat = "ComputerAdaptiveTesting"
 [compat]
 CondaPkg = "0.2"
 DataFrames = "^1.5.0"
-FittedItemBanks = "0.3.0"
+FittedItemBanks = "0.4.0"
 RCall = "0.13"
 julia = "^1.8"
 
