@@ -12,7 +12,7 @@ using ArraysOfArrays: VectorOfArrays, VectorOfVectors
 using FittedItemBanks: monopoly_coefficients
 using BSplines
 
-export fit_monopoly, fit_spline, fit_mirt, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
+export fit_monopoly, fit_spline, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
 
 function fit_mirt_raw(df; kwargs...)
     @debug "Fitting IRT model"
