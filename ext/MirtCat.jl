@@ -10,30 +10,43 @@ struct MirtCatDesign{T}
     inner::T
 end
 
-function params_to_mirt(params)
+function params_to_mirt_4pl(params)
     params[:, 1] = -params[:, 1]
-    params[:, 4] .= 1.0 .- params[:, 4]
+    params[:, end] .= 1.0 .- params[:, end]
+    a_dim = size(params, 2) - 3
+    cols = ["d", ["a$(n)" for n in 1:a_dim]..., "g", "u"]
     rcopy(R"""
         library(mirtCAT)
         mat <- $params
-        colnames(mat) <- c("d", "a1", "g", "u")
+        colnames(mat) <- $cols
         generate.mirt_object(mat, "4PL")
     """)
 end
 
-function make_mirtcat(params, criteria, next_item)
-    mirt_params = params_to_mirt(params)
+function make_mirtcat(params::Matrix, criteria, next_item)
+    mirt_params = params_to_mirt_4pl(params)
+    return make_mirtcat(mirt_params, criteria, next_item)
+end
+
+function make_mirtcat(params::NamedTuple, criteria, next_item)
+    if Set(keys(params)) != Set(["d", "a", "g", "u"])
+        throw(ArgumentError("params must be a NamedTuple with keys d, a, g, u"))
+    end
+    return make_mirtcat(hcat(params.d, params.a, params.g, params.u), criteria, next_item)
+end
+
+function make_mirtcat(mirt_params, criteria="seq", method="MAP")
     mirt_design = rcopy(R"""
-        mirtCAT(df=NULL, mo=$mirt_params, design_elements=TRUE, criteria=$criteria, next_item=$next_item)
+        mirtCAT(df=NULL, mo=$mirt_params, design_elements=TRUE, criteria=$criteria, method=$method)
     """)
     (MirtCatDesign(mirt_design), mirt_params)
 end
 
-function next_item(mirt_design::MirtCatDesign)
+function next_item(mirt_design::MirtCatDesign, criteria=nothing)
     design = mirt_design.inner
     return R"""
         options(show.error.locations = TRUE)
-        findNextItem($design)
+        findNextItem($design, criteria=$criteria)
     """
 end
 
