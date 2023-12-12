@@ -13,6 +13,7 @@ using FittedItemBanks: monopoly_coefficients
 using BSplines
 
 export fit_monopoly, fit_spline, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
+export fit_mirt_2pl
 
 function fit_mirt_raw(df; kwargs...)
     @debug "Fitting IRT model"
@@ -196,6 +197,19 @@ Fit a 2PL model to the data in `df`.
 function fit_2pl(df; return_raw=false, kwargs...)
     fit() = fit_mirt_df(df; model=1, itemtype="2PL", return_raw=return_raw, kwargs...)
     convert(params) = ItemBank2PL(params[!, "d"], params[!, "a1"]), params[!, "label"]
+    handle_return_raw(fit, convert, return_raw)
+end
+
+"""
+Fit a 2PL MIRT model to the data in `df`.
+"""
+function fit_mirt_2pl(df, dims; return_raw=false, kwargs...)
+    fit() = fit_mirt_df(df; model=dims, itemtype="2PL", return_raw=return_raw, kwargs...)
+    function convert(params)
+        difficulties = params[!, "d"]
+        discriminations = Matrix{Float64}(permutedims(select(params, r"a\d+")))
+        return ItemBankMirt2PL(difficulties, discriminations), params[!, "label"]
+    end
     handle_return_raw(fit, convert, return_raw)
 end
 
