@@ -48,6 +48,19 @@ function fit_mirt_df(df; kwargs...)
     return df, irt_model
 end
 
+function fit_irt_df(df; kwargs...)
+    irt_model = fit_mirt_raw(df; kwargs...)
+    @debug "Converting to DataFrame"
+    df = rcopy(
+        R"""
+        mat <- coef($irt_model, simplify=TRUE, IRTpars=TRUE)[[1]]
+        df <- as.data.frame(mat)
+        cbind(label = rownames(mat), df)
+        """
+    )
+    return df, irt_model
+end
+
 function fit_mirt_dict_rows(df; kwargs...)
     irt_model = fit_mirt_raw(df; kwargs...)
     @debug "Converting to dictionary of dictionaries"
@@ -177,8 +190,8 @@ end
 Fit a 4PL model to the data in `df`.
 """
 function fit_4pl(df; return_raw=false, kwargs...)
-    fit() = fit_mirt_df(df; model=1, itemtype="4PL", return_raw=return_raw, kwargs...)
-    convert(params) = ItemBank4PL(params[!, "d"], params[!, "a1"], params[!, "g"], 1.0 .- params[!, "u"]), params[!, "label"]
+    fit() = fit_irt_df(df; model=1, itemtype="4PL", return_raw=return_raw, kwargs...)
+    convert(params) = ItemBank4PL(params[!, "b"], params[!, "a"], params[!, "g"], 1.0 .- params[!, "u"]), params[!, "label"]
     handle_return_raw(fit, convert, return_raw)
 end
 
@@ -186,8 +199,8 @@ end
 Fit a 3PL model to the data in `df`.
 """
 function fit_3pl(df; return_raw=false, kwargs...)
-    fit() = fit_mirt_df(df; model=1, itemtype="3PL", return_raw=return_raw, kwargs...)
-    convert(params) = ItemBank3PL(params[!, "d"], params[!, "a1"], params[!, "g"]), params[!, "label"]
+    fit() = fit_irt_df(df; model=1, itemtype="3PL", return_raw=return_raw, kwargs...)
+    convert(params) = ItemBank3PL(params[!, "b"], params[!, "a"], params[!, "g"]), params[!, "label"]
     handle_return_raw(fit, convert, return_raw)
 end
 
@@ -195,8 +208,8 @@ end
 Fit a 2PL model to the data in `df`.
 """
 function fit_2pl(df; return_raw=false, kwargs...)
-    fit() = fit_mirt_df(df; model=1, itemtype="2PL", return_raw=return_raw, kwargs...)
-    convert(params) = ItemBank2PL(params[!, "d"], params[!, "a1"]), params[!, "label"]
+    fit() = fit_irt_df(df; model=1, itemtype="2PL", return_raw=return_raw, kwargs...)
+    convert(params) = ItemBank2PL(params[!, "b"], params[!, "a"]), params[!, "label"]
     handle_return_raw(fit, convert, return_raw)
 end
 
