@@ -12,7 +12,7 @@ mutable struct MirtCatDesign{T}
     inner::T
 end
 
-function params_to_mirt_4pl(params)
+function params_to_mirt_4pl(params::Matrix)
     params[:, 1] = -params[:, 1]
     params[:, end] .= 1.0 .- params[:, end]
     a_dim = size(params, 2) - 3
@@ -25,16 +25,11 @@ function params_to_mirt_4pl(params)
     """)
 end
 
-function make_mirtcat(params::Matrix, criteria, next_item)
-    mirt_params = params_to_mirt_4pl(params)
-    return make_mirtcat(mirt_params, criteria, next_item)
-end
-
-function make_mirtcat(params::NamedTuple, criteria, next_item)
+function params_to_mirt_4pl(params::NamedTuple)
     if Set(keys(params)) != Set(["d", "a", "g", "u"])
         throw(ArgumentError("params must be a NamedTuple with keys d, a, g, u"))
     end
-    return make_mirtcat(hcat(params.d, params.a, params.g, params.u), criteria, next_item)
+    return hcat(params.d, params.a, params.g, params.u)
 end
 
 function make_mirtcat(mirt_params; criteria="seq", method="MAP", start_item=1, design=(;))
@@ -52,13 +47,14 @@ function make_mirtcat(mirt_params; criteria="seq", method="MAP", start_item=1, d
     (MirtCatDesign(mirt_design), mirt_params)
 end
 
-function next_item(mirt_design::MirtCatDesign; criteria=nothing)
+function next_item(mirt_design::MirtCatDesign; kwargs...)
     design = mirt_design.inner
-    if criteria === nothing
-        return rcopy(R"""findNextItem($design)""")
-    else
-        return rcopy(R"""findNextItem($design, criteria=$criteria)""")
-    end
+    rcopy(rcall(:findNextItem, design; kwargs...))
+end
+
+function compute_criteria(mirt_design::MirtCatDesign, criteria=get_criteria(mirt_design); kwargs...)
+    design = mirt_design.inner
+    rcopy(rcall(:computeCriteria, design, criteria; kwargs...))
 end
 
 function add_response!(mirt_design::MirtCatDesign, response::Response)
@@ -78,6 +74,11 @@ function get_ability(mirt_design::MirtCatDesign)
         extract.mirtCAT($(design)$person, 'thetas_SE')
     """)
     return (thetas, thetas_se)
+end
+
+function get_criteria(mirt_design::MirtCatDesign)
+    design = mirt_design.inner
+    return rcopy(R"""$(design)$design@criteria""")
 end
 
 function should_terminate(mirt_design::MirtCatDesign)
@@ -122,6 +123,44 @@ function next(mirt_design, new_item, new_response)
     return MirtCatDesign(r_mirt_design)
 end
 
+function plot(mirt_design)
+    design = mirt_design.inner
+    @info "plot class"
+    R"""
+    mce <- mirtCAT:::.MCE
+    mce[['MASTER']]$mirt_mins <- 1
+    mce[['MASTER']]$test <- $(design)$test
+    mirtcat_full <- mirtCAT:::mirtCAT_post_internal(
+        person=$(design)$person$copy(),
+        design=$(design)$design,
+        has_answers=$(design)$test@has_answers
+    )
+    plot(mirtcat_full)
+    """
+end
+
+function fscores(mirt_design, method; kwargs...)
+    design = mirt_design.inner
+    mo = R"""extract.mirtCAT($(design)$test, 'mo')"""
+    covdata = R"""extract.mirt($mo, 'covdata')"""
+    responses = R"""
+    responses <- extract.mirtCAT($(design)$person, 'responses')
+    itemnames <- extract.mirt($mo, "itemnames")
+    dim(responses) <- c(1, length(responses))
+    colnames(responses) <- itemnames
+    responses
+    #responses <- matrix(1:1, nrow=1, ncol=1)
+    #print(responses)
+    #colnames(responses) <- c("Q1")
+    #print(responses)
+    #responses
+    """
+    #@info "fscores" responses
+    # R"""matrix(, nrow = 0, ncol = 0)"""
+    rcopy(rcall(:fscores, mo, var"response.pattern" = responses, kwargs...))
+    #result = rcall(:fscores, mo)
+end
+
 """
 Run a given CatLoopConfig based on a MirtCatDesign
 """
@@ -130,6 +169,10 @@ function Sim.run_cat(cat_config::Sim.CatLoopConfig{RulesT}, ib_labels=nothing) w
 
     first = true
     while true
+        @debug begin
+            criteria = compute_criteria(rules)
+            "Best items"
+        end criteria
         next_index = next_item(rules)
         next_label = Sim.item_label(ib_labels, next_index)
         @debug "Querying" next_label
