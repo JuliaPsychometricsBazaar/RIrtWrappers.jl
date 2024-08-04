@@ -5,7 +5,6 @@ using RIrtWrappers: KernSmoothIRT
 using RIrtWrappers: Mirt
 using Optim
 
-
 rng = Xoshiro(42)
 
 const dich_df = DataFrame(
