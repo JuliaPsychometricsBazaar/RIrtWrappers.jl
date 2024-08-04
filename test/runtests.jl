@@ -1,3 +1,3 @@
 using XUnit
 
-runtests("tests_top.jl", ARGS...)
+runtests("test_top.jl", ARGS...)
