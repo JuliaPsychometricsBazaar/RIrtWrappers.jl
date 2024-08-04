@@ -14,16 +14,18 @@ const dich_fits = [
     Mirt.fit_4pl
 ]
 
-const dich_df = DataFrame(Dict("Q$qidx" => rand(rng, 0:1, 10) for qidx in 1:10); copycols=false)
+const dich_df = DataFrame(
+    Dict("Q$qidx" => rand(rng, 0:1, 10) for qidx in 1:10); copycols = false)
 
 for fitter in dich_fits
     @test fitter(dich_df)[1] isa AbstractItemBank
 end
 
-const rand_ord_df = DataFrame(Dict("Q$qidx" => rand(rng, 0:2, 10) for qidx in 1:10); copycols=false)
+const rand_ord_df = DataFrame(
+    Dict("Q$qidx" => rand(rng, 0:2, 10) for qidx in 1:10); copycols = false)
 
 uniq_ord_df = copy(rand_ord_df)
-for col in propertynames(uniq_ord_df )
+for col in propertynames(uniq_ord_df)
     uniq_ord_df[1:3, col] = [0, 1, 2]
 end
 

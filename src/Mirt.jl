@@ -119,10 +119,14 @@ end
 """
 Fit a monotonic polynomial IRT model to the data in `df`.
 """
-function fit_monopoly(df; return_raw=false, monopoly_k=1, kwargs...)
-    fit() = fit_mirt_dict_rows(df; itemtype="monopoly", var"monopoly.k"=monopoly_k, kwargs...)
+function fit_monopoly(df; return_raw = false, monopoly_k = 1, kwargs...)
+    function fit()
+        fit_mirt_dict_rows(
+            df; itemtype = "monopoly", var"monopoly.k" = monopoly_k, kwargs...)
+    end
     function convert(params)
-        (items_as, items_xi, items_bs) = extract_and_convert_monopoly_params(monopoly_k, params)
+        (items_as, items_xi, items_bs) = extract_and_convert_monopoly_params(
+            monopoly_k, params)
         return MonopolyItemBank(items_as, items_xi, items_bs), collect(keys(params))
     end
     handle_return_raw(fit, convert, return_raw)
@@ -139,7 +143,7 @@ end
 """
 Fit a B-spline IRT model to the data in `df`.
 """
-function fit_spline(df; return_raw=false, spline_args=nothing, kwargs...)
+function fit_spline(df; return_raw = false, spline_args = nothing, kwargs...)
     if spline_args isa AbstractVector
         # Assume vector contains arguments for each item in order
         spline_args_dict = Dict()
@@ -147,7 +151,8 @@ function fit_spline(df; return_raw=false, spline_args=nothing, kwargs...)
             spline_args_dict[item_name] = spline_arg
         end
         spline_args = spline_args_dict
-    elseif spline_args isa AbstractDict && length(spline_args) >= 1 && !(String(first(keys(spline_args))) in names(df))
+    elseif spline_args isa AbstractDict && length(spline_args) >= 1 &&
+           !(String(first(keys(spline_args))) in names(df))
         # Assume dictionary is arguments for all items
         spline_args_dict = Dict()
         for item_name in names(df)
@@ -156,7 +161,9 @@ function fit_spline(df; return_raw=false, spline_args=nothing, kwargs...)
         spline_args = spline_args_dict
     end
     # Otherwise assume spline_args is a dictionary of dictionaries with item names as keys
-    fit() = fit_mirt_dict_rows(df; itemtype="spline", spline_args=spline_args, kwargs...)
+    function fit()
+        fit_mirt_dict_rows(df; itemtype = "spline", spline_args = spline_args, kwargs...)
+    end
     function convert(params, irt_model)
         theta_lim = rcopy(R"""attributes($irt_model)$Internals$theta_lim""")
         bases = []
@@ -176,8 +183,8 @@ end
 """
 Fit a Generalized Partial Credit Model (GPCM) to the data in `df`.
 """
-function fit_gpcm(df; return_raw=false, kwargs...)
-    fit() = fit_mirt_df(df; model=1, itemtype="gpcm", kwargs...)
+function fit_gpcm(df; return_raw = false, kwargs...)
+    fit() = fit_mirt_df(df; model = 1, itemtype = "gpcm", kwargs...)
     function convert(params)
         discriminations = Matrix{Float64}(select(params, r"a\d+"))
         cut_points = Matrix{Float64}(select(params, r"d\d+"))
@@ -189,26 +196,31 @@ end
 """
 Fit a 4PL model to the data in `df`.
 """
-function fit_4pl(df; return_raw=false, kwargs...)
-    fit() = fit_irt_df(df; model=1, itemtype="4PL", return_raw=return_raw, kwargs...)
-    convert(params) = ItemBank4PL(params[!, "b"], params[!, "a"], params[!, "g"], 1.0 .- params[!, "u"]), params[!, "label"]
+function fit_4pl(df; return_raw = false, kwargs...)
+    fit() = fit_irt_df(df; model = 1, itemtype = "4PL", return_raw = return_raw, kwargs...)
+    function convert(params)
+        ItemBank4PL(params[!, "b"], params[!, "a"], params[!, "g"], 1.0 .- params[!, "u"]),
+        params[!, "label"]
+    end
     handle_return_raw(fit, convert, return_raw)
 end
 
 """
 Fit a 3PL model to the data in `df`.
 """
-function fit_3pl(df; return_raw=false, kwargs...)
-    fit() = fit_irt_df(df; model=1, itemtype="3PL", return_raw=return_raw, kwargs...)
-    convert(params) = ItemBank3PL(params[!, "b"], params[!, "a"], params[!, "g"]), params[!, "label"]
+function fit_3pl(df; return_raw = false, kwargs...)
+    fit() = fit_irt_df(df; model = 1, itemtype = "3PL", return_raw = return_raw, kwargs...)
+    function convert(params)
+        ItemBank3PL(params[!, "b"], params[!, "a"], params[!, "g"]), params[!, "label"]
+    end
     handle_return_raw(fit, convert, return_raw)
 end
 
 """
 Fit a 2PL model to the data in `df`.
 """
-function fit_2pl(df; return_raw=false, kwargs...)
-    fit() = fit_irt_df(df; model=1, itemtype="2PL", return_raw=return_raw, kwargs...)
+function fit_2pl(df; return_raw = false, kwargs...)
+    fit() = fit_irt_df(df; model = 1, itemtype = "2PL", return_raw = return_raw, kwargs...)
     convert(params) = ItemBank2PL(params[!, "b"], params[!, "a"]), params[!, "label"]
     handle_return_raw(fit, convert, return_raw)
 end
@@ -216,8 +228,10 @@ end
 """
 Fit a 2PL MIRT model to the data in `df`.
 """
-function fit_mirt_2pl(df, dims; return_raw=false, kwargs...)
-    fit() = fit_mirt_df(df; model=dims, itemtype="2PL", return_raw=return_raw, kwargs...)
+function fit_mirt_2pl(df, dims; return_raw = false, kwargs...)
+    function fit()
+        fit_mirt_df(df; model = dims, itemtype = "2PL", return_raw = return_raw, kwargs...)
+    end
     function convert(params)
         difficulties = params[!, "d"]
         discriminations = Matrix{Float64}(permutedims(select(params, r"a\d+")))
@@ -226,7 +240,7 @@ function fit_mirt_2pl(df, dims; return_raw=false, kwargs...)
     handle_return_raw(fit, convert, return_raw)
 end
 
-function handle_return_raw(fit, convert, return_raw, pass_raw=false)
+function handle_return_raw(fit, convert, return_raw, pass_raw = false)
     params, irt_model = fit()
     if pass_raw
         ib, labels = convert(params, irt_model)

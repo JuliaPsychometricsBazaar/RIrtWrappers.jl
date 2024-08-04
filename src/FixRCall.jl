@@ -6,7 +6,6 @@ using Pkg
 const restart_on_error = false
 needs_restart = false
 
-
 function find_rcall_path()
     for (uuid, info) in Pkg.dependencies()
         if info.name == "RCall"
@@ -15,7 +14,6 @@ function find_rcall_path()
     end
     return nothing
 end
-
 
 function fix_rcall(explicit)
     global needs_restart
@@ -62,16 +60,20 @@ function fix_rcall(explicit)
         if need_update
             println(stderr, "RCall will be updated.")
         else
-            println(stderr, "RCall's R_HOME was already correctly configured. Leaving as is...")
+            println(
+                stderr, "RCall's R_HOME was already correctly configured. Leaving as is...")
         end
     elseif need_update
-        println(stderr, "Looks like RCall is not pointing to the correct R_HOME. This can happen if e.g. you move your project.")
+        println(stderr,
+            "Looks like RCall is not pointing to the correct R_HOME. This can happen if e.g. you move your project.")
         println(stderr, "RCall will be updated.")
         if rcall_has_been_loaded
             if restart_on_error
-                println(stderr, "Because RCall has already been loaded, this script will attempt to restart itself after RCall is updated.")
+                println(stderr,
+                    "Because RCall has already been loaded, this script will attempt to restart itself after RCall is updated.")
             else
-                println(stderr, "Because RCall has already been loaded, you will need to restart your script when it is updated.")
+                println(stderr,
+                    "Because RCall has already been loaded, you will need to restart your script when it is updated.")
             end
         end
     end

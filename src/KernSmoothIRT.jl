@@ -2,7 +2,8 @@ module KernSmoothIRT
 
 using CondaPkg
 using RCall
-using FittedItemBanks: DichotomousPointsItemBank, DichotomousSmoothedItemBank, KernelSmoother
+using FittedItemBanks: DichotomousPointsItemBank, DichotomousSmoothedItemBank,
+                       KernelSmoother
 using FittedItemBanks: gauss_kern, uni_kern, quad_kern
 
 export fit_ks_dichotomous
@@ -10,11 +11,14 @@ export fit_ks_dichotomous
 """
 Fit a kernel smoothed dichotomous IRT model to the data in `df`.
 """
-function fit_ks_dichotomous(df; return_raw=false, kwargs...)
-    (irt_model, item_idxs, resp_idxs, weights, evalpoints, occs, bandwidth) = __fit_ks(df; key=1, format=2, kwargs...)
+function fit_ks_dichotomous(df; return_raw = false, kwargs...)
+    (irt_model, item_idxs, resp_idxs, weights, evalpoints, occs, bandwidth) = __fit_ks(
+        df; key = 1, format = 2, kwargs...)
     # XXX: Weights unused. What is it
     resps1 = resp_idxs .== 1
-    ib = DichotomousSmoothedItemBank(DichotomousPointsItemBank(evalpoints, occs[resps1, :]), KernelSmoother(gauss_kern, bandwidth))
+    ib = DichotomousSmoothedItemBank(
+        DichotomousPointsItemBank(evalpoints, occs[resps1, :]),
+        KernelSmoother(gauss_kern, bandwidth))
     if return_raw
         return ib, item_idxs, irt_model
     else
@@ -22,7 +26,7 @@ function fit_ks_dichotomous(df; return_raw=false, kwargs...)
     end
 end
 
-function __fit_ks(df; kernel="gaussian", kwargs...)
+function __fit_ks(df; kernel = "gaussian", kwargs...)
     if kernel != "gaussian"
         error("Kernel must be Guassian")
     end
