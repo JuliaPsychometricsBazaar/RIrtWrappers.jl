@@ -21,26 +21,30 @@ ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
 MirtCat = "ComputerAdaptiveTesting"
 
 [compat]
-ArraysOfArrays = "^0.6.2"
 Aqua = "^0.8.2"
+ArraysOfArrays = "^0.6.2"
 BSplines = "^0.3.3"
+ComputerAdaptiveTesting = "^0.1.0, ^0.2.0"
 CondaPkg = "0.2"
-ComputerAdaptiveTesting  = "^0.1.0, ^0.2.0"
 DataFrames = "^1.5.0"
 FillArrays = "^1.7.0"
 FittedItemBanks = "^0.4.0, ^0.5.0, ^0.6.0"
+JET = "0.9.7"
+JuliaFormatter = "1.0.59"
 Optim = "^1.7.8"
 Pkg = "^1.8"
-Random = "^1.8"
-Test = "^1.8"
 RCall = "^0.14.1"
+Random = "^1.8"
+XUnit = "1.1.6"
 julia = "^1.8"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+XUnit = "3e3c03f2-1a94-11e9-2981-050a4ca824ab"
 
 [targets]
-test = ["Aqua", "Optim", "Test"]
+test = ["Aqua", "JET", "JuliaFormatter", "Optim", "XUnit"]
