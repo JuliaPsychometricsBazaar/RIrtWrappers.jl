@@ -19,7 +19,6 @@ function fit_mirt_raw(df; kwargs...)
     @debug "Fitting IRT model"
     R"""
     library(mirt)
-    library(dplyr)
     """
     dump_raw = nothing
     if :dump_raw in keys(kwargs)
