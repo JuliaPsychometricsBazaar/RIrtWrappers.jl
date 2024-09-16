@@ -17,7 +17,7 @@ function fit_ks_dichotomous(df; return_raw = false, kwargs...)
     # XXX: Weights unused. What is it
     resps1 = resp_idxs .== 1
     ib = DichotomousSmoothedItemBank(
-        DichotomousPointsItemBank(evalpoints, occs[resps1, :]),
+        DichotomousPointsItemBank(evalpoints, permutedims(occs[resps1, :], [2, 1])),
         KernelSmoother(gauss_kern, bandwidth))
     if return_raw
         return ib, item_idxs, irt_model
