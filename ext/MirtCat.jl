@@ -9,6 +9,8 @@ using ComputerAdaptiveTesting.Aggregators
 using ComputerAdaptiveTesting.Responses
 using ComputerAdaptiveTesting: Stateful
 
+include("./mirtcat/conversion.jl")
+
 const r_library_loaded = Ref{Bool}(false)
 
 function ensure_r_library_loaded()
@@ -23,33 +25,14 @@ mutable struct MirtCatDesign{T}
     inner::T
 end
 
-function params_to_mirt_4pl(params::Matrix)
-    ensure_r_library_loaded()
-    params[:, 1] = -params[:, 1]
-    params[:, end] .= 1.0 .- params[:, end]
-    a_dim = size(params, 2) - 3
-    cols = ["d", ["a$(n)" for n in 1:a_dim]..., "g", "u"]
-    rcopy(R"""
-        mat <- $params
-        colnames(mat) <- $cols
-        generate.mirt_object(mat, "4PL")
-    """)
-end
-
-function params_to_mirt_4pl(params::NamedTuple)
-    if Set(keys(params)) != Set(["d", "a", "g", "u"])
-        throw(ArgumentError("params must be a NamedTuple with keys d, a, g, u"))
-    end
-    return hcat(params.d, params.a, params.g, params.u)
-end
-
 function make_mirtcat(
-        mirt_params; criteria = "seq", method = "MAP", start_item = 1, design = (;))
+        mirt_params::Any; criteria = "seq", method = "MAP", start_item = 1, design = (;))
     ensure_r_library_loaded()
+    mirt_params_prepared = prepare_item_bank_params(mirt_params)
     mirt_design = R"""
         mirtCAT(
             df=NULL,
-            mo=$mirt_params,
+            mo=$mirt_params_prepared,
             design_elements=TRUE,
             criteria=$criteria,
             method=$method,
@@ -57,7 +40,7 @@ function make_mirtcat(
             design=$design
         )
     """
-    (MirtCatDesign(mirt_design), mirt_params)
+    (MirtCatDesign(mirt_design), mirt_params_prepared)
 end
 
 function next_item(mirt_design::MirtCatDesign; kwargs...)
@@ -351,7 +334,7 @@ function Stateful.add_response!(config::StatefulMirtCat, index, response)
     add_response!(config.design, index, response)
 end
 
-function Stateful.rollback!(config::StatefulMirtCatNoRollbacks)
+function Stateful.rollback!(::StatefulMirtCatNoRollbacks)
     error("Cannot rollback StatefulMirtCatNoRollbacks")
 end
 
@@ -367,6 +350,15 @@ end
 function Stateful.reset!(config::StatefulMirtCatWithRollbacks)
     reset!(config.design)
     empty!(config.rollbacks)
+end
+
+function Stateful.set_item_bank!(config::StatefulMirtCat, item_bank)
+    item_bank_r = prepare_item_bank_params(item_bank)
+    r_mirt_design = config.design.inner
+    R"""
+    test <- $(r_mirt_design)$test
+    test@mo <- $(item_bank_r)
+    """
 end
 
 function Stateful.get_responses(config::StatefulMirtCat)
