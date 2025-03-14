@@ -185,8 +185,8 @@ Fit a Generalized Partial Credit Model (GPCM) to the data in `df`.
 function fit_gpcm(df; return_raw = false, kwargs...)
     fit() = fit_mirt_df(df; model = 1, itemtype = "gpcm", kwargs...)
     function convert(params)
-        discriminations = Matrix{Float64}(select(params, r"a\d+"))
-        cut_points = Matrix{Float64}(select(params, r"d\d+"))
+        discriminations = permutedims(Matrix{Float64}(select(params, r"a\d+")))
+        cut_points = permutedims(Matrix{Float64}(select(params, r"d\d+")))
         return GPCMItemBank(discriminations, cut_points), params[!, "label"]
     end
     handle_return_raw(fit, convert, return_raw)
