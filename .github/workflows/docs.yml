@@ -30,7 +30,7 @@ jobs:
                                     Pkg.add(Pkg.PackageSpec(name="GitHubActions", version="0.1"));
                                     Pkg.instantiate()'
       - name: Fix rcall
-        run: julia --project=docs/ src/FixRCall.jl
+        run: julia --project=. src/FixRCall.jl
       - uses: julia-actions/julia-buildpkg@v1
         with:
           project: 'docs'
