@@ -38,7 +38,7 @@ Preferences = "1.4.3"
 RCall = "^0.14.1"
 Random = "^1.8"
 XUnit = "1.1.6"
-julia = "^1.10"
+julia = "^1.11"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
