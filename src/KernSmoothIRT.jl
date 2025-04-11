@@ -1,6 +1,20 @@
+"""
+This module wraps the `mirt` R module. See [`mirt` on CRAN](https://cran.r-project.org/web/packages/mirt/index.html).
+
+All `fit_*` functions return a tuple of the form `(item_bank, labels)` where
+
+ * `item_bank` is a concrete subtype of [`FittedItemBanks.AbstractItemBank`](@extref)
+ * `labels` is a `Vector{String}` of item labels
+
+If `return_raw` is set to `true`, the functions will return a tuple of the form
+`(item_bank, labels, irt_model)` where `irt_model` is the raw R object.
+
+Any keyword arguments passed to the `fit_*` functions are directly to the `mirt` function.
+"""
 module KernSmoothIRT
 
 using CondaPkg
+using DocStringExtensions
 using RCall
 using FittedItemBanks: DichotomousPointsItemBank, DichotomousSmoothedItemBank,
                        KernelSmoother
@@ -9,7 +23,12 @@ using FittedItemBanks: gauss_kern, uni_kern, quad_kern
 export fit_ks_dichotomous
 
 """
+$(TYPEDSIGNATURES)
+
 Fit a kernel smoothed dichotomous IRT model to the data in `df`.
+
+Returns a [FittedItemBanks.DichotomousSmoothedItemBank](@extref)
+using the [FittedItemBanks.gauss_kern](@extref) [FittedItemBanks.KernelSmoother](@extref).
 """
 function fit_ks_dichotomous(df; return_raw = false, kwargs...)
     (irt_model, item_idxs, resp_idxs, weights, evalpoints, occs, bandwidth) = __fit_ks(

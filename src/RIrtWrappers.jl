@@ -1,11 +1,19 @@
 module RIrtWrappers
 
+using DocStringExtensions
+
 export require_mirtcat
 
 include("./Mirt.jl")
 include("./KernSmoothIRT.jl")
 
-function require_mirtcat()
+"""
+$(TYPEDSIGNATURES)
+
+Returns the MirtCat extension module.
+Requires the `ComputerAdaptiveTesting` module in your environment.
+"""
+function require_mirtcat()::Module
     MirtCat = Base.get_extension(@__MODULE__, :MirtCat)
     if MirtCat === nothing
         error(

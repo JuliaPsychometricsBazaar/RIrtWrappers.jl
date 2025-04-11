@@ -1,5 +1,15 @@
 """
-This module wraps the mirt R module. See [CRAN](https://cran.r-project.org/web/packages/mirt/index.html).
+This module wraps the `mirt` R module. See [`mirt` on CRAN](https://cran.r-project.org/web/packages/mirt/index.html).
+
+All `fit_*` functions return a tuple of the form `(item_bank, labels)` where
+
+ * `item_bank` is a concrete subtype of [`FittedItemBanks.AbstractItemBank`](@extref)
+ * `labels` is a `Vector{String}` of item labels
+
+If `return_raw` is set to `true`, the functions will return a tuple of the form
+`(item_bank, labels, irt_model)` where `irt_model` is the raw R object.
+
+Any keyword arguments passed to the `fit_*` functions are directly to the `mirt` function.
 """
 module Mirt
 
@@ -11,6 +21,14 @@ using FillArrays: Fill
 using ArraysOfArrays: VectorOfArrays, VectorOfVectors
 using FittedItemBanks: monopoly_coefficients
 using BSplines
+
+using DocStringExtensions
+
+@template (FUNCTIONS, METHODS, MACROS) =
+    """
+    $(SIGNATURES)
+    $(DOCSTRING)
+    """
 
 export fit_monopoly, fit_spline, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
 export fit_mirt_2pl
@@ -117,6 +135,8 @@ end
 
 """
 Fit a monotonic polynomial IRT model to the data in `df`.
+
+Returns a [`FittedItemBanks.MonopolyItemBank`](@extref).
 """
 function fit_monopoly(df; return_raw = false, monopoly_k = 1, kwargs...)
     function fit()
@@ -141,6 +161,8 @@ end
 
 """
 Fit a B-spline IRT model to the data in `df`.
+
+Returns a [`FittedItemBanks.BSplineItemBank`](@extref).
 """
 function fit_spline(df; return_raw = false, spline_args = nothing, kwargs...)
     if spline_args isa AbstractVector
@@ -181,6 +203,8 @@ end
 
 """
 Fit a Generalized Partial Credit Model (GPCM) to the data in `df`.
+
+Returns a [`FittedItemBanks.GPCMItemBank`](@extref).
 """
 function fit_gpcm(df; return_raw = false, kwargs...)
     fit() = fit_mirt_df(df; model = 1, itemtype = "gpcm", kwargs...)
@@ -194,6 +218,8 @@ end
 
 """
 Fit a 4PL model to the data in `df`.
+
+Returns a [`FittedItemBanks.ItemBank4PL`](@extref).
 """
 function fit_4pl(df; return_raw = false, kwargs...)
     fit() = fit_irt_df(df; model = 1, itemtype = "4PL", return_raw = return_raw, kwargs...)
@@ -206,6 +232,8 @@ end
 
 """
 Fit a 3PL model to the data in `df`.
+
+Returns a [`FittedItemBanks.ItemBank3PL`](@extref).
 """
 function fit_3pl(df; return_raw = false, kwargs...)
     fit() = fit_irt_df(df; model = 1, itemtype = "3PL", return_raw = return_raw, kwargs...)
@@ -217,6 +245,8 @@ end
 
 """
 Fit a 2PL model to the data in `df`.
+
+Returns a [`FittedItemBanks.ItemBank2PL`](@extref).
 """
 function fit_2pl(df; return_raw = false, kwargs...)
     fit() = fit_irt_df(df; model = 1, itemtype = "2PL", return_raw = return_raw, kwargs...)
@@ -226,6 +256,8 @@ end
 
 """
 Fit a 2PL MIRT model to the data in `df`.
+
+Returns a [`FittedItemBanks.ItemBankMirt2PL`](@extref).
 """
 function fit_mirt_2pl(df, dims; return_raw = false, kwargs...)
     function fit()

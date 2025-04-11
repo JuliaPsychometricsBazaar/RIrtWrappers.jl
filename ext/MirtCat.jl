@@ -8,25 +8,87 @@ import ComputerAdaptiveTesting.DecisionTree
 using ComputerAdaptiveTesting.Aggregators
 using ComputerAdaptiveTesting.Responses
 using ComputerAdaptiveTesting: Stateful
+using DocStringExtensions
+
+export make_mirtcat
+export plot
+export StatefulMirtCat, StatefulMirtCatNoRollbacks, StatefulMirtCatWithRollbacks
 
 include("./mirtcat/conversion.jl")
 
 const r_library_loaded = Ref{Bool}(false)
+
+function r_helpers()
+    R"""
+    mk_new_person <- function(person, test) {
+        return(mirtCAT:::Person$new(
+            ID = person$ID,
+            nfact = test@nfact,
+            nitems = length(test@itemnames),
+            score = person$score,
+            theta_SEs = sqrt(diag(test@gp$gcov)),
+            Info_thetas_cov = solve(test@gp$gcov),
+            thetas.start = rep(0, test@nfact)
+        ))
+    }
+    mk_new_test <- function(test, mo) {
+        K <- mo@Data$K
+        item_options <- vector('list', length(K))
+        for (i in seq_len(length(K))) {
+            item_options[[i]] <- 0L:(K[i] - 1L)
+        }
+        test <- new(
+            'Test',
+            mo=mo,
+            item_answers_in=NULL,
+            AnswerFuns=list(),
+            item_options=item_options,
+            quadpts_in=test@quadpts,
+            theta_range_in=test@theta_range,
+            dots=test@fscores_args
+        )
+    }
+    """
+end
 
 function ensure_r_library_loaded()
     if r_library_loaded[]
         return
     end
     R"library(mirtCAT)"
+    r_helpers()
     r_library_loaded[] = true
 end
 
+"""
+$(TYPEDEF)
+
+A type wrapping an mirtCAT `mirtCAT_design` object.
+"""
 mutable struct MirtCatDesign{T}
     inner::T
 end
 
+"""
+$(SIGNATURES)
+
+Makes an [MirtCatDesign](@ref) object from the given `mirt_params` which can be any
+supported implementation for [FittedItemBanks.AbstractItemBank)[@ref] or a raw R
+object supported by `mirtCAT`'s `mo` argument.
+
+The `criteria`, `method`, `start_item` and `design` arguments will be passed
+directly to R `mirtCAT` function.
+
+The return value is tuple of the [MirtCatDesign](@ref) object, and the raw R
+object passed as the `mo` argument for the item bank.
+"""
 function make_mirtcat(
-        mirt_params::Any; criteria = "seq", method = "MAP", start_item = 1, design = (;))
+    mirt_params::Any;
+    criteria = "seq",
+    method = "MAP",
+    start_item = 1,
+    design = (;)
+)::Tuple{MirtCatDesign, RObject}
     ensure_r_library_loaded()
     mirt_params_prepared = prepare_item_bank_params(mirt_params)
     mirt_design = R"""
@@ -94,20 +156,11 @@ function reset!(mirt_design::MirtCatDesign)
     r_mirt_design = mirt_design.inner
     # TODO: thetas.start should be initialised to whatever was passed into mirtCAT(...) to begin with
     new_mirt_design = R"""
-        old_person <- $(r_mirt_design)$person
+        person <- $(r_mirt_design)$person
         test <- $(r_mirt_design)$test
         design <- $(r_mirt_design)$design
-        new_person <- mirtCAT:::Person$new(
-            ID = old_person$ID,
-            nfact = test@nfact,
-            nitems = length(test@itemnames),
-            score = old_person$score,
-            theta_SEs = sqrt(diag(test@gp$gcov)),
-            Info_thetas_cov = solve(test@gp$gcov),
-            thetas.start = rep(0, test@nfact)
-        )
         full_design <- c(
-            person = new_person,
+            person = mk_new_person(person, test),
             test = test,
             design = design
         )
@@ -170,35 +223,9 @@ function get_responses(mirt_design::MirtCatDesign)
     return (items_answered_in_order, responses_in_order)
 end
 
-#=
-function next_with_rollback(mirt_design, new_item, new_response)
-    ensure_r_library_loaded()
-    r_mirt_design = mirt_design.inner
-    new_r_mirt_design = R"""
-        old_r_mirt_design <- c(
-            person = mirt_design$person$copy(),
-            test = mirt_design$test,
-            design = mirt_design$design
-        )
-        updateDesign($r_mirt_design , new_item = $new_item, new_response = $new_response)
-    """
-    return (MirtCatDesign(old_r_mirt_design), MirtCatDesign(new_r_mirt_design))
-end
-
-function next(mirt_design, new_item, new_response)
-    ensure_r_library_loaded()
-    r_mirt_design = mirt_design.inner
-    r_mirt_design = R"""
-        updateDesign($r_mirt_design, new_item = $new_item, new_response = $new_response)
-    """
-    return MirtCatDesign(r_mirt_design)
-end
-=#
-
 function plot(mirt_design)
     ensure_r_library_loaded()
     design = mirt_design.inner
-    @info "plot class"
     R"""
     mce <- mirtCAT:::.MCE
     mce[['MASTER']]$mirt_mins <- 1
@@ -216,27 +243,26 @@ function fscores(mirt_design, method; kwargs...)
     ensure_r_library_loaded()
     design = mirt_design.inner
     mo = R"""extract.mirtCAT($(design)$test, 'mo')"""
-    covdata = R"""extract.mirt($mo, 'covdata')"""
     responses = R"""
     responses <- extract.mirtCAT($(design)$person, 'responses')
     itemnames <- extract.mirt($mo, "itemnames")
     dim(responses) <- c(1, length(responses))
     colnames(responses) <- itemnames
     responses
-    #responses <- matrix(1:1, nrow=1, ncol=1)
-    #print(responses)
-    #colnames(responses) <- c("Q1")
-    #print(responses)
-    #responses
     """
-    #@info "fscores" responses
-    # R"""matrix(, nrow = 0, ncol = 0)"""
     rcopy(rcall(:fscores, mo, var"response.pattern" = responses, kwargs...))
-    #result = rcall(:fscores, mo)
 end
 
 """
-Run a given CatLoopConfig based on a MirtCatDesign
+```julia
+Sim.run_cat(
+    cat_config::Sim.CatLoopConfig{MirtCatDesign},
+    ib_labels = nothing
+)
+````
+
+Run a CAT for a given CatLoopConfig based on a MirtCatDesign.
+See also [ComputerAdaptiveTesting.Sim.run_cat](@extref)
 """
 function Sim.run_cat(cat_config::Sim.CatLoopConfig{RulesT},
         ib_labels = nothing) where {RulesT <: MirtCatDesign}
@@ -267,48 +293,36 @@ function Sim.run_cat(cat_config::Sim.CatLoopConfig{RulesT},
     (get_responses(rules), get_ability(rules))
 end
 
-#=
-Base.@kwdef struct MirtCatDecisionTreeGenerationConfig
-    """
-    The maximum depth of the decision tree
-    """
-    max_depth::UInt
-    """
-    The mirtCAT design
-    """
-    design::MirtCatDesign
-end
+"""
+$(TYPEDEF)
 
-function DecisionTree.generate_dt_cat(config::MirtCatDecisionTreeGenerationConfig, item_bank)
-    state_tree = TreePosition(config.max_depth)
-    decision_tree_result = MaterializedDecisionTree(config.max_depth)
-    while true
-        new_item = next_item(config.design)
-        insert!(decision_tree_result, responses.responses, ability, new_item)
-        if state_tree.cur_depth == state_tree.max_depth
-            # Final ability estimates
-            for resp in (false, true)
-                add_response!(responses, Response(ResponseType(item_bank), next_item, resp))
-                ability = config.ability_estimator(responses)
-                insert!(decision_tree_result, responses.responses, ability)
-                pop_response!(responses)
-            end
-        end
-
-        if next!(state_tree, responses, item_bank, next_item, ability)
-            break
-        end
-    end
-    decision_tree_result
-end
-=#
-
+Supertype for `StatefulMirtCatNoRollbacks` and `StatefulMirtCatWithRollbacks`
+"""
 abstract type StatefulMirtCat <: Stateful.StatefulCat end
 
+"""
+$(TYPEDEF)
+```julia
+StatefulMirtCatWithRollbacks(design::MirtCatDesign) -> StatefulMirtCatWithRollbacks
+```
+
+Adapter type for [MirtCatDesign](@ref) into a [ComputerAdaptiveTesting.Stateful](@extref) implementation.
+This implementation does not support rollbacks.
+"""
 struct StatefulMirtCatNoRollbacks{T} <: StatefulMirtCat
     design::MirtCatDesign{T}
 end
 
+"""
+$(TYPEDEF)
+```julia
+StatefulMirtCatWithRollbacks(design::MirtCatDesign) -> StatefulMirtCatWithRollbacks
+```
+
+Adapter type for [MirtCatDesign](@ref) into a [ComputerAdaptiveTesting.Stateful](@extref)
+implementation supporting rollbacks.
+This implementation uses deep copies to support rollbacks an may consume a lot of memory.
+"""
 struct StatefulMirtCatWithRollbacks{T} <: StatefulMirtCat
     design::MirtCatDesign{T}
     rollbacks::Vector{MirtCatDesign{T}}
@@ -343,22 +357,33 @@ function Stateful.rollback!(config::StatefulMirtCatWithRollbacks)
     config.design.inner = rollback_cat_design.inner
 end
 
-function Stateful.reset!(config::StatefulMirtCatNoRollbacks)
-    reset!(config.design)
-end
+maybe_empty_rollbacks!(::StatefulMirtCatNoRollbacks) = nothing
+maybe_empty_rollbacks!(config::StatefulMirtCatWithRollbacks) = empty!(config.rollbacks)
 
-function Stateful.reset!(config::StatefulMirtCatWithRollbacks)
+function Stateful.reset!(config::StatefulMirtCat)
     reset!(config.design)
-    empty!(config.rollbacks)
+    maybe_empty_rollbacks!(config)
 end
 
 function Stateful.set_item_bank!(config::StatefulMirtCat, item_bank)
     item_bank_r = prepare_item_bank_params(item_bank)
     r_mirt_design = config.design.inner
-    R"""
+    new_mirt_design = R"""
+    mo <- $(item_bank_r)
+    person <- $(r_mirt_design)$person
     test <- $(r_mirt_design)$test
-    test@mo <- $(item_bank_r)
+    test <- mk_new_test(test, mo)
+    person <- mk_new_person(person, test)
+    full_design <- c(
+        person = person,
+        test = test,
+        design = $(r_mirt_design)$design
+    )
+    class(full_design) <- "mirtCAT_design"
+    full_design
     """
+    config.design.inner = new_mirt_design
+    maybe_empty_rollbacks!(config)
 end
 
 function Stateful.get_responses(config::StatefulMirtCat)

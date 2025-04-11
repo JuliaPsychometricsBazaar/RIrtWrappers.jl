@@ -1,6 +1,8 @@
 [deps]
+ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterInterLinks = "d12716ef-a0f6-4df4-a9f1-a5a34e75c656"
 Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 RIrtWrappers = "3c499bf4-8795-40ff-83c0-5639be88f347"
