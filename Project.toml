@@ -39,7 +39,7 @@ Pkg = "^1.8"
 Preferences = "1.4.3"
 RCall = "^0.14.1"
 Random = "^1.8"
-XUnit = "1.1.6"
+Test = "^1.11"
 julia = "^1.11"
 
 [extras]
@@ -48,7 +48,7 @@ ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
-XUnit = "3e3c03f2-1a94-11e9-2981-050a4ca824ab"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "JET", "JuliaFormatter", "Optim", "XUnit"]
+test = ["Aqua", "JET", "JuliaFormatter", "Optim", "Test"]
