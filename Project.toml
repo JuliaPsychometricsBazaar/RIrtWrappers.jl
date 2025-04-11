@@ -33,7 +33,6 @@ DocStringExtensions = "0.9.4"
 FillArrays = "^1.7.0"
 FittedItemBanks = "^0.4.0, ^0.5.0, ^0.6.0"
 JET = "^0.7, ^0.8, ^0.9"
-JuliaFormatter = "1.0.59"
 Optim = "^1.7.8"
 Pkg = "^1.8"
 Preferences = "1.4.3"
@@ -46,9 +45,8 @@ julia = "^1.11"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
-JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "JET", "JuliaFormatter", "Optim", "Test"]
+test = ["Aqua", "JET", "Optim", "Test"]
