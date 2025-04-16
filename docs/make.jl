@@ -16,18 +16,6 @@ links = InterLinks(
     "FittedItemBanks" => ("https://juliapsychometricsbazaar.github.io/FittedItemBanks.jl/dev/"),
 )
 
-@info "ComputerAdaptiveTesting"
-for l in links["ComputerAdaptiveTesting"]
-    show(l)
-    println()
-end
-println()
-@info "FittedItemBanks"
-for l in links["FittedItemBanks"]
-    show(l)
-    println()
-end
-
 makedocs(;
     modules=[
         RIrtWrappers,
