@@ -1,4 +1,4 @@
-# MirtCat
+# MirtCAT
 
 ```@meta
 CurrentModule = RIrtWrappers.require_mirtcat()

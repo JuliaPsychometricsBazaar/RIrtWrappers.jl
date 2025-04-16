@@ -10,6 +10,7 @@ format = Documenter.HTML(
 )
 
 const MirtCat = RIrtWrappers.require_mirtcat()
+const CatR = RIrtWrappers.require_catr()
 
 links = InterLinks(
     "ComputerAdaptiveTesting" => ("https://juliapsychometricsbazaar.github.io/ComputerAdaptiveTesting.jl/dev/"),
@@ -19,7 +20,8 @@ links = InterLinks(
 makedocs(;
     modules=[
         RIrtWrappers,
-        MirtCat
+        MirtCat,
+        CatR
     ],
     authors="Frankie Robertson",
     repo = GitHub("JuliaPsychometricsBazaar", "RIrtWrappers.jl"),
@@ -28,7 +30,7 @@ makedocs(;
     checkdocs=:public,
     pages=[
         "Home" => "index.md",
-        "Modules" => ["mirt.md", "kernsmoothirt.md", "mirtcat.md"]
+        "Modules" => ["mirt.md", "kernsmoothirt.md", "mirtcat.md", "catr.md"]
     ],
     plugins=[links],
 )

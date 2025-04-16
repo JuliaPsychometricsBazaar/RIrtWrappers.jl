@@ -13,6 +13,7 @@ FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
 FittedItemBanks = "3f797b09-34e4-41d7-acf6-3302ae3248a5"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Preferences = "21216c6a-2e73-6563-6e65-726566657250"
+PsychometricsBazaarBase = "b0d9cada-d963-45e9-a4c6-4746243987f1"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
@@ -20,7 +21,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
 
 [extensions]
-MirtCat = "ComputerAdaptiveTesting"
+ComputerAdaptiveTestingExt = "ComputerAdaptiveTesting"
 
 [compat]
 Aqua = "^0.8.2"
@@ -36,6 +37,7 @@ JET = "^0.7, ^0.8, ^0.9"
 Optim = "^1.7.8"
 Pkg = "^1.8"
 Preferences = "1.4.3"
+PsychometricsBazaarBase = "0.8.2"
 RCall = "^0.14.1"
 Random = "^1.8"
 Test = "^1.11"
@@ -49,4 +51,4 @@ Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "JET", "Optim", "Test"]
+test = ["Aqua", "ComputerAdaptiveTesting", "JET", "Optim", "Test"]

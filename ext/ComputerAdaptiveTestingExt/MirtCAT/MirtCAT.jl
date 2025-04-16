@@ -1,4 +1,4 @@
-module MirtCat
+module MirtCAT
 
 using Random: Xoshiro
 using RCall
@@ -14,7 +14,7 @@ export make_mirtcat
 export plot
 export StatefulMirtCat, StatefulMirtCatNoRollbacks, StatefulMirtCatWithRollbacks
 
-include("./mirtcat/conversion.jl")
+include("./conversion.jl")
 
 const r_library_loaded = Ref{Bool}(false)
 
@@ -37,6 +37,8 @@ function r_helpers()
         for (i in seq_len(length(K))) {
             item_options[[i]] <- 0L:(K[i] - 1L)
         }
+        fscores_args <- test@fscores_args
+        fscores_args <- fscores_args[!names(fscores_args) %in% "rotate"]
         test <- new(
             'Test',
             mo=mo,
@@ -45,7 +47,7 @@ function r_helpers()
             item_options=item_options,
             quadpts_in=test@quadpts,
             theta_range_in=test@theta_range,
-            dots=test@fscores_args
+            dots=fscores_args
         )
     }
     """
@@ -73,7 +75,7 @@ end
 $(SIGNATURES)
 
 Makes an [MirtCatDesign](@ref) object from the given `mirt_params` which can be any
-supported implementation for [FittedItemBanks.AbstractItemBank)[@ref] or a raw R
+supported implementation for [FittedItemBanks.AbstractItemBank)[@extref] or a raw R
 object supported by `mirtCAT`'s `mo` argument.
 
 The `criteria`, `method`, `start_item` and `design` arguments will be passed

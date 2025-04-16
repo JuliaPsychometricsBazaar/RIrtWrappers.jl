@@ -1,5 +1,7 @@
 [deps]
+r = ""
 r-dplyr = ""
 r-mirt = ""
-r = ""
 r-kernsmoothirt = ""
+r-mirtcat = ""
+r-catr = ""

@@ -33,7 +33,7 @@ For example:
 
 ## Running CATs
 
-The [MirtCat](@ref) module wraps an R library for simulating and administering CATs.
+The [MirtCAT](@ref) module wraps an R library for simulating and administering CATs.
 
 You need to use the following method to get ahold of the module.
 
