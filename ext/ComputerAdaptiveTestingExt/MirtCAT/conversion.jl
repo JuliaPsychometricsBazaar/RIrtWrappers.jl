@@ -1,4 +1,4 @@
-using ..ComputerAdaptiveTestingExt: prepare_item_bank_nt
+using ..ComputerAdaptiveTestingExt: prepare_item_bank_nt, delete
 
 function generate_mirt_object(params::Matrix, cols, model)
     ensure_r_library_loaded()
@@ -45,5 +45,9 @@ end
 prepare_item_bank_params(mirt_params) = mirt_params
 
 function prepare_item_bank_params(item_bank::AbstractItemBank)
-    params_to_r_mirt(prepare_item_bank_nt(item_bank))
+    params = prepare_item_bank_nt(item_bank)
+    if params.D != 1.0
+        error("Not implemented: D != 1.0 not implemented (yet)")
+    end
+    params_to_r_mirt(delete(params, :D))
 end

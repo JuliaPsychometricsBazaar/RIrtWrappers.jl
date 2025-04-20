@@ -27,8 +27,7 @@ function StatefulCatR(
     item_bank;
     start_item=1,
     criterion,
-    method,
-    d_constant=logistic_to_normal_scaling_factor
+    method
 ```
 
 The `StatefulCatR` type implements the
@@ -56,16 +55,15 @@ function StatefulCatR(
     item_bank;
     start_item=1,
     criterion,
-    method,
-    d_constant=logistic_to_normal_scaling_factor
+    method
 )
-    item_bank_r = prepare_item_bank_params(item_bank)
+    item_bank_r, d_constant = prepare_item_bank_params(item_bank)
     StatefulCatR(;
         item_bank=item_bank_r,
         start_item,
         criterion,
         method,
-        d_constant,
+        d_constant=d_constant,
         responses=BareResponses(BooleanResponse()),
         theta=R"NA"
     )
@@ -131,7 +129,9 @@ function Stateful.reset!(config::StatefulCatR)
 end
 
 function Stateful.set_item_bank!(config::StatefulCatR, item_bank)
-    config.item_bank = prepare_item_bank_params(item_bank)
+    item_bank, d = prepare_item_bank_params(item_bank)
+    config.item_bank = item_bank
+    config.d_constant = d
     Stateful.reset!(config)
 end
 

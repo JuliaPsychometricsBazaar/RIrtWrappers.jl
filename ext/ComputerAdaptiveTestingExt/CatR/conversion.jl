@@ -1,4 +1,4 @@
-using ..ComputerAdaptiveTestingExt: prepare_item_bank_nt
+using ..ComputerAdaptiveTestingExt: prepare_item_bank_nt, delete
 
 #=
 (From catR.pdf)
@@ -40,5 +40,6 @@ end
 prepare_item_bank_params(mirt_params) = mirt_params
 
 function prepare_item_bank_params(item_bank::AbstractItemBank)
-    params_to_catr(prepare_item_bank_nt(item_bank))
+    params = prepare_item_bank_nt(item_bank)
+    (params_to_catr(delete(params, :D)), params.D)
 end
