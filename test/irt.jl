@@ -1,9 +1,12 @@
+using CondaPkg
 using DataFrames
 using FittedItemBanks: AbstractItemBank
 using Random
 using RIrtWrappers: KernSmoothIRT
 using RIrtWrappers: Mirt
-using Optim
+using Test
+
+CondaPkg.activate!(ENV)
 
 rng = Xoshiro(42)
 
