@@ -21,7 +21,7 @@ end
 
 function params_to_catr((d, a, g)::NamedTuple{(:d, :a, :g)})
     l = length(d)
-    RCall.robject(hcat(a, d, g, zeros(l)))
+    RCall.robject(hcat(a, d, g, ones(l)))
 end
 
 function params_to_catr((d, a, u)::NamedTuple{(:d, :a, :u)})
@@ -31,7 +31,7 @@ end
 
 function params_to_catr((d, a)::NamedTuple{(:d, :a)})
     l = length(d)
-    RCall.robject(hcat(a, d, zeros(l), zeros(l)))
+    RCall.robject(hcat(a, d, zeros(l), ones(l)))
 end
 
 # This approach can lead to runtime errors later:
