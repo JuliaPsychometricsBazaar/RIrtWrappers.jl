@@ -121,7 +121,6 @@ function Stateful.add_response!(config::StatefulCatR, index, response)
 end
 
 function Stateful.rollback!(config::StatefulCatR)
-    last_idx = responses.indices[end]
     pop_response!(config.responses)
     _update_theta_est(config)
 end
