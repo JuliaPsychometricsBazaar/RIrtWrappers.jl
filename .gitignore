@@ -2,3 +2,4 @@
 .CondaPkg/
 /Manifest.toml
 /attic/
+LocalPreferences.toml
