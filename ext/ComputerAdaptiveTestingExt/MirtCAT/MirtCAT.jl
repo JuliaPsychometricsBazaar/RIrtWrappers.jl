@@ -405,4 +405,21 @@ function Stateful.get_ability(config::StatefulMirtCat)
     return get_ability(config.design)
 end
 
+function Stateful.item_bank_size(config::StatefulMirtCat)
+    rcopy(R"""
+    mo <- extract.mirtCAT($(config.design.inner)$test, 'mo')
+    extract.mirt(mo, 'nitems')
+    """)
+end
+
+function Stateful.item_response_functions(config::StatefulMirtCat, index, ability)
+    traceline = R"""
+    mo <- extract.mirtCAT($(config.design.inner)$test, 'mo')
+    item <- extract.item(mo, $index)
+    probtrace(item, $ability)
+    """
+    @info "irf" index ability traceline
+    return rcopy(traceline)[1, :]
+end
+
 end
