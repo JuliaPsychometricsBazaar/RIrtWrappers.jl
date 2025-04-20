@@ -140,7 +140,7 @@ function Stateful.get_responses(config::StatefulCatR)
 end
 
 function Stateful.get_ability(config::StatefulCatR)
-    return (config.theta, nothing)
+    return (rcopy(config.theta), nothing)
 end
 
 end
