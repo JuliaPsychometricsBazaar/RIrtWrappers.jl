@@ -1,8 +1,7 @@
 module CatR
 
 using ComputerAdaptiveTesting: Stateful
-using ComputerAdaptiveTesting.Aggregators: add_response!
-using ComputerAdaptiveTesting.Responses: BareResponses, Response
+using ComputerAdaptiveTesting.Responses: BareResponses, Response, add_response!, pop_response!
 using FittedItemBanks: AbstractItemBank, BooleanResponse
 using PsychometricsBazaarBase.ConstDistributions: logistic_to_normal_scaling_factor 
 
