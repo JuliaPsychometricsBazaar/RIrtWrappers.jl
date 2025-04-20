@@ -222,8 +222,8 @@ function get_responses(mirt_design::MirtCatDesign)
     """)
     num_items_answered = count(x -> !ismissing(x), items_answered)
     items_answered_in_order = collect(Int, items_answered[1:num_items_answered])
-    responses_in_order = [responses[item_idx] for item_idx in items_answered_in_order]
-    return (items_answered_in_order, responses_in_order)
+    responses_in_order = Bool.(responses[item_idx] for item_idx in items_answered_in_order)
+    return BareResponses(BooleanResponse(), items_answered_in_order, responses_in_order)
 end
 
 function plot(mirt_design)
