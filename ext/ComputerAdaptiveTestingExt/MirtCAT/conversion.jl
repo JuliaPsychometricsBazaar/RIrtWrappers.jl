@@ -3,7 +3,7 @@ using ..ComputerAdaptiveTestingExt: prepare_item_bank_nt
 function generate_mirt_object(params::Matrix, cols, model)
     ensure_r_library_loaded()
     params[:, 1] = -params[:, 1]
-    params[:, end] .= 1.0 .- params[:, end]
+    params[:, end] .= params[:, end]
     rcopy(R"""
         mat <- $params
         colnames(mat) <- $cols

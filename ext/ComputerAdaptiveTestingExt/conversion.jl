@@ -9,7 +9,7 @@ function prepare_item_bank_nt(item_bank::TransferItemBank)
 end
 
 function prepare_item_bank_nt(item_bank::SlipItemBank)
-    return (; prepare_item_bank_nt(item_bank.inner_bank)..., u=item_bank.slips)
+    return (; prepare_item_bank_nt(item_bank.inner_bank)..., u=1.0 .- item_bank.slips)
 end
 
 function prepare_item_bank_nt(item_bank::GuessItemBank)
