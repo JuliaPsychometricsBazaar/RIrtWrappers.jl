@@ -124,7 +124,7 @@ function add_response!(mirt_design::MirtCatDesign, index, value)
     ensure_r_library_loaded()
     design = mirt_design.inner
     new_design = R"""
-        updateDesign($design, $(index), $(value))
+    updateDesign($design, $index, $(Int(value)))
     """
     mirt_design.inner = new_design
 end
@@ -145,6 +145,7 @@ function add_response_with_rollback!(mirt_design::MirtCatDesign, new_item, new_r
         class(old_r_mirt_design) <- "mirtCAT_design"
         updateDesign($r_mirt_design, new_item = $new_item, new_response = $new_response)
     """
+    old_r_mirt_design = R"old_r_mirt_design"
     mirt_design.inner = new_r_mirt_design
     return (MirtCatDesign(old_r_mirt_design), mirt_design)
 end
@@ -305,7 +306,7 @@ abstract type StatefulMirtCat <: Stateful.StatefulCat end
 """
 $(TYPEDEF)
 ```julia
-StatefulMirtCatWithRollbacks(design::MirtCatDesign) -> StatefulMirtCatWithRollbacks
+StatefulMirtCatNoRollbacks(design::MirtCatDesign) -> StatefulMirtCatNoRollbacks
 ```
 
 Adapter type for [MirtCatDesign](@ref) into a [ComputerAdaptiveTesting.Stateful](@extref) implementation.
@@ -330,8 +331,8 @@ struct StatefulMirtCatWithRollbacks{T} <: StatefulMirtCat
     rollbacks::Vector{MirtCatDesign{T}}
 end
 
-function StatefulMirtCatWithRollbacks(design::MirtCatDesign)
-    return StatefulMirtCatWithRollbacks(design, [])
+function StatefulMirtCatWithRollbacks(design::MirtCatDesign{T}) where {T}
+    return StatefulMirtCatWithRollbacks(design, MirtCatDesign{T}[])
 end
 
 function Stateful.next_item(config::StatefulMirtCat)
@@ -346,8 +347,13 @@ function Stateful.item_criteria(config::StatefulMirtCat)
     return compute_criteria(config.design)
 end
 
-function Stateful.add_response!(config::StatefulMirtCat, index, response)
+function Stateful.add_response!(config::StatefulMirtCatNoRollbacks, index, response)
     add_response!(config.design, index, response)
+end
+
+function Stateful.add_response!(config::StatefulMirtCatWithRollbacks, index, response)
+    rollback = add_response_with_rollback!(config.design, index, response)[1]
+    push!(config.rollbacks, rollback)
 end
 
 function Stateful.rollback!(::StatefulMirtCatNoRollbacks)
@@ -355,7 +361,10 @@ function Stateful.rollback!(::StatefulMirtCatNoRollbacks)
 end
 
 function Stateful.rollback!(config::StatefulMirtCatWithRollbacks)
-    rollback_cat_design = config.rollbacks.pop!()
+    if length(config.rollbacks) == 0
+        error("Cannot rollback: No rollbacks available")
+    end
+    rollback_cat_design = pop!(config.rollbacks)
     config.design.inner = rollback_cat_design.inner
 end
 
