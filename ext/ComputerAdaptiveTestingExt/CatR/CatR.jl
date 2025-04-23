@@ -151,10 +151,6 @@ function Stateful.item_response_functions(config::StatefulCatR, index, ability)
     ensure_r_library_loaded()
     prob = rcopy(R"""
     item <- $(config.item_bank)[$index,]
-    print("item_response_function")
-    print($(config.item_bank))
-    print($ability)
-    print(item)
     Pi($ability, item, D=$(config.d_constant))$Pi
     """)
     return [1 - prob, prob]

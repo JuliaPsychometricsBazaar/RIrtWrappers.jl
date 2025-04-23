@@ -418,7 +418,6 @@ function Stateful.item_response_functions(config::StatefulMirtCat, index, abilit
     item <- extract.item(mo, $index)
     probtrace(item, $ability)
     """
-    @info "irf" index ability traceline
     return rcopy(traceline)[1, :]
 end
 
