@@ -11,31 +11,31 @@ function generate_mirt_object(params::Matrix, cols, model)
     """)
 end
 
-function params_to_r_mirt((d, a, g, u)::NamedTuple{(:d, :a, :g, :u)})
-    a_dim = size(a, 2)
-    cols = ["d", ["a$(n)" for n in 1:a_dim]..., "g", "u"]
-    mat = hcat(d, a, g, u)
+function params_to_r_mirt((i, s, g, u)::NamedTuple{(:i, :s, :g, :u)})
+    s_dim = size(s, 2)
+    cols = ["d", ["a$(n)" for n in 1:s_dim]..., "g", "u"]
+    mat = hcat(i, s, g, u)
     generate_mirt_object(mat, cols, "4PL")
 end
 
-function params_to_r_mirt((d, a, g)::NamedTuple{(:d, :a, :g)})
-    a_dim = size(a, 2)
-    cols = ["d", ["a$(n)" for n in 1:a_dim]..., "g"]
-    mat = hcat(d, a, g)
+function params_to_r_mirt((i, s, g)::NamedTuple{(:i, :s, :g)})
+    s_dim = size(s, 2)
+    cols = ["d", ["a$(n)" for n in 1:s_dim]..., "g"]
+    mat = hcat(i, s, g)
     generate_mirt_object(mat, cols, "3PL")
 end
 
-function params_to_r_mirt((d, a, u)::NamedTuple{(:d, :a, :u)})
-    a_dim = size(a, 2)
-    cols = ["d", ["a$(n)" for n in 1:a_dim]..., "u"]
-    mat = hcat(d, a, u)
+function params_to_r_mirt((i, s, u)::NamedTuple{(:i, :s, :u)})
+    s_dim = size(s, 2)
+    cols = ["d", ["a$(n)" for n in 1:s_dim]..., "u"]
+    mat = hcat(i, s, u)
     generate_mirt_object(mat, cols, "3PLu")
 end
 
-function params_to_r_mirt((d, a)::NamedTuple{(:d, :a)})
-    a_dim = size(a, 2)
-    cols = ["d", ["a$(n)" for n in 1:a_dim]...]
-    mat = hcat(d, a)
+function params_to_r_mirt((i, s)::NamedTuple{(:i, :s)})
+    s_dim = size(s, 2)
+    cols = ["d", ["a$(n)" for n in 1:s_dim]...]
+    mat = hcat(i, s)
     generate_mirt_object(mat, cols, "2PL")
 end
 
@@ -44,7 +44,19 @@ end
 # but it allows for the user to prepare the params themselves
 prepare_item_bank_params(mirt_params) = mirt_params
 
+function ensure_slope_intercept(item_bank::AbstractItemBank)
+    basic_type = FittedItemBanks.basic_item_bank(typeof(item_bank))
+    if basic_type <: SlopeInterceptTransferItemBank
+        return item_bank
+    elseif basic_type <: TransferItemBank
+        return FittedItemBanks.replace_basic_item_bank(item_bank, SlopeInterceptTransferItemBank)
+    else
+        error("Item bank $(item_bank) with basic type $(basic_type) is not supported")
+    end
+end
+
 function prepare_item_bank_params(item_bank::AbstractItemBank)
+    item_bank = ensure_slope_intercept(item_bank)
     params = prepare_item_bank_nt(item_bank)
     if params.D != 1.0
         error("Not implemented: D != 1.0 not implemented (yet)")

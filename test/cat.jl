@@ -28,6 +28,10 @@ rng = Xoshiro(42)
         start_item=1
     )[1])
 
+    @testset "Item bank" begin
+        TestExt.test_stateful_cat_item_bank_1d_dich_ib(cat, item_bank)
+    end
+
     TestExt.test_stateful_cat_1d_dich_ib(
         cat,
         4
@@ -41,6 +45,10 @@ end
         criterion="MEPV",
         method="EAP",
     )
+
+    @testset "Item bank" begin
+        TestExt.test_stateful_cat_item_bank_1d_dich_ib(cat, item_bank)
+    end
 
     TestExt.test_stateful_cat_1d_dich_ib(
         cat,

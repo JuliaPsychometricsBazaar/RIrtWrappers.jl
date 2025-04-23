@@ -33,6 +33,8 @@ using DocStringExtensions
 export fit_monopoly, fit_spline, fit_2pl, fit_3pl, fit_4pl, fit_gpcm
 export fit_mirt_2pl
 
+public probtrace
+
 function fit_mirt_raw(df; kwargs...)
     @debug "Fitting IRT model"
     R"""
@@ -283,6 +285,14 @@ function handle_return_raw(fit, convert, return_raw, pass_raw = false)
     else
         return ib, labels
     end
+end
+
+function probtrace(irt_model, index, ability)
+    traceline = R"""
+    item <- extract.item($irt_model, $index)
+    probtrace(item, $ability)
+    """
+    return rcopy(traceline)[1, :]
 end
 
 end

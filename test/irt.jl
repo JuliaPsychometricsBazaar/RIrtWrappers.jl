@@ -1,12 +1,14 @@
 using CondaPkg
+using ComputerAdaptiveTesting
 using DataFrames
-using FittedItemBanks: AbstractItemBank
+using FittedItemBanks: AbstractItemBank, ItemResponse, resp_vec
 using Random
-using RIrtWrappers: KernSmoothIRT
-using RIrtWrappers: Mirt
+using RIrtWrappers: KernSmoothIRT, Mirt, require_mirtcat
 using Test
 
 CondaPkg.activate!(ENV)
+
+MirtCat = require_mirtcat()
 
 rng = Xoshiro(42)
 
@@ -24,7 +26,25 @@ const mirt_dich_fits = [
 
 @testset "mirt dichotomous fits" begin
     for fitter in mirt_dich_fits
-        @test fitter(dich_df)[1] isa AbstractItemBank
+        local item_bank_jl, item_bank_r
+        @testset "Fit" begin
+            item_bank_jl, _labels, item_bank_r = fitter(dich_df; return_raw=true)
+            @test item_bank_jl isa AbstractItemBank
+        end
+        roundtripped_item_bank_r = MirtCat.prepare_item_bank_params(item_bank_jl)
+        @testset "Same resp" for sample_item in (1, 7, 9), point in (-1.4, -0.5, 0.0, 1.4)
+            ir = ItemResponse(item_bank_jl, sample_item)
+            @test isapprox(
+                Mirt.probtrace(item_bank_r, sample_item, point),
+                resp_vec(ir, point);
+                rtol=0.01
+            )
+            @test isapprox(
+                Mirt.probtrace(roundtripped_item_bank_r, sample_item, point),
+                resp_vec(ir, point);
+                rtol=0.01
+            )
+        end
     end
 end
 
