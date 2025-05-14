@@ -36,12 +36,17 @@ function prepare_item_bank_nt(item_bank::SlopeInterceptTransferItemBank)
     )
 end
 
-function prepare_item_bank_nt(item_bank::SlipItemBank)
-    return (; prepare_item_bank_nt(item_bank.inner_bank)..., u=1.0 .- item_bank.slips)
-end
-
-function prepare_item_bank_nt(item_bank::GuessItemBank)
-    return (; prepare_item_bank_nt(item_bank.inner_bank)..., g=item_bank.guesses)
+function prepare_item_bank_nt(item_bank::GuessAndSlipItemBank)
+    guesses_zeros, slips_zeros = FittedItemBanks.guess_slip_indicators(item_bank)
+    if guesses_zeros && slips_zeros
+        return prepare_item_bank_nt(item_bank.inner_bank)
+    elseif guesses_zeros
+        return (; prepare_item_bank_nt(item_bank.inner_bank)..., u=1.0 .- item_bank.slips)
+    elseif slips_zeros
+        return (; prepare_item_bank_nt(item_bank.inner_bank)..., g=item_bank.guesses)
+    else
+        return (; prepare_item_bank_nt(item_bank.inner_bank)..., g=item_bank.guesses, u=1.0 .- item_bank.slips)
+    end
 end
 
 # TODO: Will be in Base soon
