@@ -18,6 +18,7 @@ Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 PsychometricsBazaarBase = "b0d9cada-d963-45e9-a4c6-4746243987f1"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [weakdeps]
 ComputerAdaptiveTesting = "5a0d4f34-1f62-4a66-80fe-87aba0485488"
@@ -44,6 +45,7 @@ Preferences = "1.4.3"
 PsychometricsBazaarBase = "0.8.2"
 RCall = "^0.14.1"
 Random = "^1.8"
+StaticArrays = "1.9.13"
 Test = "^1.11"
 julia = "^1.11"
 
