@@ -144,14 +144,6 @@ function Stateful.next_item(config::StatefulCatR)
     end
 end
 
-function Stateful.ranked_items(config::StatefulCatR)
-    error("Not implemented")
-end
-
-function Stateful.item_criteria(config::StatefulCatR)
-    error("Not implemented")
-end
-
 function Stateful.add_response!(config::StatefulCatR, index, response)
     add_response!(config.responses, Response(
         config.responses.rt,
