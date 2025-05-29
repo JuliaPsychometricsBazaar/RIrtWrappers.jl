@@ -226,7 +226,7 @@ function get_responses(mirt_design::MirtCatDesign)
     return BareResponses(BooleanResponse(), items_answered_in_order, responses_in_order)
 end
 
-function plot(mirt_design)
+function plot_cat(mirt_design)
     ensure_r_library_loaded()
     design = mirt_design.inner
     R"""
@@ -240,6 +240,22 @@ function plot(mirt_design)
     )
     plot(mirtcat_full)
     """
+end
+
+function plot_item_bank(mirt_design; kwargs...)
+    ensure_r_library_loaded()
+    design = mirt_design.inner
+    mo = R"""extract.mirtCAT($(design)$test, 'mo')"""
+    rcall(:plot, mo; kwargs...)
+
+    #=itemnames <- extract.mirt(mo, 'itemnames')
+    item_options <- extract.mirt(mo, 'item_options')
+    item_options <- lapply(item_options, function(x) {
+        if (is.null(x)) {
+            return(NULL)
+        }
+        return(as.character(x))
+    })=#
 end
 
 function fscores(mirt_design, method; kwargs...)
