@@ -78,6 +78,7 @@ function, while `method` will be passed to `thetaEst`.
     d_constant::Float64
     prior_dist::String # prior distribution for likelihood
     prior_par::SVector{2, Float64} # parameters for prior distribution
+    info_type::String # "observed" or "Fisher"
     responses::BareResponses
     theta::RObject # cached theta estimate
 end
@@ -88,7 +89,8 @@ function StatefulCatR(
     criterion,
     method,
     prior_dist="norm",
-    prior_par=@SVector[0.0, 1.0]
+    prior_par=@SVector[0.0, 1.0],
+    info_type="observed"
 )
     item_bank_r, d_constant = prepare_item_bank_params(item_bank)
     StatefulCatR(;
@@ -99,6 +101,7 @@ function StatefulCatR(
         d_constant,
         prior_dist,
         prior_par,
+        info_type,
         responses=BareResponses(BooleanResponse()),
         theta=R"NA"
     )
@@ -134,7 +137,8 @@ function Stateful.next_item(config::StatefulCatR)
             criterion=$(config.criterion),
             method=$(config.method),
             priorDist=$(config.prior_dist),
-            priorPar=$(config.prior_par)
+            priorPar=$(config.prior_par),
+            infoType=$(config.info_type)
         )$item
         """)
     end
