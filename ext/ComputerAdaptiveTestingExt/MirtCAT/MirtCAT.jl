@@ -174,6 +174,9 @@ function reset!(mirt_design::MirtCatDesign)
     return mirt_design
 end
 
+prepare_ability(x::AbstractMatrix) = dropdims(x; dims=1)
+prepare_ability(x::Number) = x
+
 function get_ability(mirt_design::MirtCatDesign)
     ensure_r_library_loaded()
     design = mirt_design.inner
@@ -183,7 +186,7 @@ function get_ability(mirt_design::MirtCatDesign)
     thetas_se = rcopy(R"""
         extract.mirtCAT($(design)$person, 'thetas_SE')
     """)
-    return (thetas, thetas_se)
+    return (prepare_ability(thetas), prepare_ability(thetas_se))
 end
 
 function get_ability_history(mirt_design::MirtCatDesign)
@@ -201,6 +204,26 @@ function get_criteria(mirt_design::MirtCatDesign)
     ensure_r_library_loaded()
     design = mirt_design.inner
     return rcopy(R"""$(design)$design@criteria""")
+end
+
+function get_iteminfo(mirt_design::MirtCatDesign, index, theta::AbstractVector; kwargs...)
+    return get_iteminfo(mirt_design, index, permutedims(theta); kwargs...)
+end
+
+function get_iteminfo(mirt_design::MirtCatDesign, index, theta; total_info=true, multidim_matrix=false)
+    return rcopy(R"""
+    mo <- extract.mirtCAT($(mirt_design.inner)$test, 'mo')
+    item <- extract.item(mo, $index)
+    iteminfo(item, $theta, degrees = NULL, total.info = $total_info, multidim_matrix = $multidim_matrix)
+    """)
+end
+
+function get_info_thetas(mirt_design::MirtCatDesign)
+    ensure_r_library_loaded()
+    design = mirt_design.inner
+    return rcopy(R"""
+        $(design)$person$info_thetas
+    """)
 end
 
 function should_terminate(mirt_design::MirtCatDesign)
@@ -426,6 +449,10 @@ function Stateful.item_bank_size(config::StatefulMirtCat)
     mo <- extract.mirtCAT($(config.design.inner)$test, 'mo')
     extract.mirt(mo, 'nitems')
     """)
+end
+
+function Stateful.item_response_functions(config::StatefulMirtCat, index, ability::AbstractVector)
+    return Stateful.item_response_functions(config, index, permutedims(ability))
 end
 
 function Stateful.item_response_functions(config::StatefulMirtCat, index, ability)
