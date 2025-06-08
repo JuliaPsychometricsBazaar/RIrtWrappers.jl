@@ -6,7 +6,7 @@ function prepare_item_bank_nt(item_bank)
     error("Not implemented: Cannot prepare item bank params for $(typeof(item_bank))")
 end
 
-function get_logistic_scaling_factor(item_bank::Union{TransferItemBank, SlopeInterceptTransferItemBank})
+function get_logistic_scaling_factor(item_bank::Union{TransferItemBank, SlopeInterceptTransferItemBank, CdfMirtItemBank, SlopeInterceptMirtItemBank})
     if !(item_bank.distribution isa Logistic)
         error("Unsupported distribution type: $(item_bank.distribution)")
     end
@@ -32,6 +32,22 @@ function prepare_item_bank_nt(item_bank::SlopeInterceptTransferItemBank)
     return (;
         i=item_bank.intercepts,
         s=item_bank.slopes,
+        D=get_logistic_scaling_factor(item_bank),
+    )
+end
+
+function prepare_item_bank_nt(item_bank::CdfMirtItemBank)
+    return (;
+        d=item_bank.difficulties,
+        a=item_bank.discriminations,
+        D=get_logistic_scaling_factor(item_bank),
+    )
+end
+
+function prepare_item_bank_nt(item_bank::SlopeInterceptMirtItemBank)
+    return (;
+        i=item_bank.intercepts,
+        s=permutedims(item_bank.slopes),
         D=get_logistic_scaling_factor(item_bank),
     )
 end

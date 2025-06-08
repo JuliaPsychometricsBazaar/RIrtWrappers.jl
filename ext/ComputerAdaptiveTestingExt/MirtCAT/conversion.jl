@@ -46,10 +46,12 @@ prepare_item_bank_params(mirt_params) = mirt_params
 
 function ensure_slope_intercept(item_bank::AbstractItemBank)
     basic_type = FittedItemBanks.basic_item_bank(typeof(item_bank))
-    if basic_type <: SlopeInterceptTransferItemBank
+    if (basic_type <: SlopeInterceptTransferItemBank) || (basic_type <: SlopeInterceptMirtItemBank)
         return item_bank
     elseif basic_type <: TransferItemBank
         return FittedItemBanks.replace_basic_item_bank(item_bank, SlopeInterceptTransferItemBank)
+    elseif basic_type <: CdfMirtItemBank
+        return FittedItemBanks.replace_basic_item_bank(item_bank, SlopeInterceptMirtItemBank)
     else
         error("Item bank $(item_bank) with basic type $(basic_type) is not supported")
     end
