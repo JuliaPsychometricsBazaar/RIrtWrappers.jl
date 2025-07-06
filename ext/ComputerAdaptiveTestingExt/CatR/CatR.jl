@@ -81,6 +81,9 @@ function, while `method` will be passed to `thetaEst`.
     info_type::String # "observed" or "Fisher"
     responses::BareResponses
     theta::RObject # cached theta estimate
+    lower::Float64 # lower bound for integration
+    upper::Float64 # upper bound for integration
+    nqp::Int # number of quadrature points for integration
 end
 
 function StatefulCatR(
@@ -103,8 +106,19 @@ function StatefulCatR(
         prior_par,
         info_type,
         responses=BareResponses(BooleanResponse()),
-        theta=R"NA"
+        theta=R"NA",
+        lower=-4.0,
+        upper=4.0,
+        nqp=33
     )
+end
+
+function _get_par_int(config::StatefulCatR)
+    return R"""c(
+        $(config.lower),
+        $(config.upper),
+        $(config.nqp)
+    )"""
 end
 
 function _update_theta_est(config::StatefulCatR)
@@ -117,7 +131,8 @@ function _update_theta_est(config::StatefulCatR)
         D=$(config.d_constant), 
         method=$(config.method),
         priorDist=$(config.prior_dist),
-        priorPar=$(config.prior_par)
+        priorPar=$(config.prior_par),
+        parInt=$(_get_par_int(config))
     )
     """
 end
@@ -138,7 +153,8 @@ function Stateful.next_item(config::StatefulCatR)
             method=$(config.method),
             priorDist=$(config.prior_dist),
             priorPar=$(config.prior_par),
-            infoType=$(config.info_type)
+            infoType=$(config.info_type),
+            parInt=$(_get_par_int(config))
         )$item
         """)
     end
