@@ -12,6 +12,14 @@ end
     include("./irt.jl")
 end
 
-@testset "cat" begin
-    include("./cat.jl")
+@testset "cat basic" begin
+    include("./cat/basic.jl")
+end
+
+@testset "cat ability" begin
+    include("./cat/ability.jl")
+end
+
+@testset "cat criteria" begin
+    include("./cat/criteria.jl")
 end
