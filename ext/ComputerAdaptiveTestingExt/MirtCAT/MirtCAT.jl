@@ -298,15 +298,15 @@ end
 """
 ```julia
 Sim.run_cat(
-    cat_config::Sim.CatLoopConfig{MirtCatDesign},
+    cat_config::Sim.CatLoop{MirtCatDesign},
     ib_labels = nothing
 )
 ````
 
-Run a CAT for a given CatLoopConfig based on a MirtCatDesign.
+Run a CAT for a given CatLoop based on a MirtCatDesign.
 See also [ComputerAdaptiveTesting.Sim.run_cat](@extref)
 """
-function Sim.run_cat(cat_config::Sim.CatLoopConfig{RulesT},
+function Sim.run_cat(cat_config::Sim.CatLoop{RulesT},
         ib_labels = nothing) where {RulesT <: MirtCatDesign}
     (; rules, get_response, new_response_callback) = cat_config
 
