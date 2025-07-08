@@ -2,11 +2,16 @@
 
 ## What is it?
 
-This package wraps some R (GPL-2/3) libraries for fitting IRT models.
+This package wraps some R (GPL-2/3) libraries for fitting IRT (Item Response
+Theory) latent variable models and running CATs (Computer-Adaptive Tests).
 
-The wrapped libraries are:
+The wrapped IRT libraries are:
  * [mirt](https://github.com/philchalmers/mirt) (GPL-3)
  * [kernsmoothirt](https://cran.r-project.org/web/packages/KernSmoothIRT/index.html) (GPL-2)
+
+The wrapped CAT libraries are:
+ * [catR](https://cran.r-project.org/web/packages/catR/index.html) (GPL-3)
+ * [mirtCAT](https://github.com/philchalmers/mirtCAT/) (GPL-3)
 
 ## Purpose
 
