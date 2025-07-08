@@ -1,11 +1,13 @@
-using ComputerAdaptiveTesting: require_testext
 using CondaPkg
+
+CondaPkg.activate!(ENV)
+
+using Test
+using ComputerAdaptiveTesting: require_testext
 using FittedItemBanks.DummyData: dummy_full
 using FittedItemBanks: OneDimContinuousDomain, VectorContinuousDomain, SimpleItemBankSpec, StdModel3PL, StdModel4PL, BooleanResponse
 using Random: Xoshiro
 using RIrtWrappers: require_mirtcat, require_catr
-
-CondaPkg.activate!(ENV)
 
 MirtCAT = require_mirtcat()
 CatR = require_catr()

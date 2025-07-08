@@ -1,12 +1,13 @@
 using CondaPkg
+
+CondaPkg.activate!(ENV)
+
 using ComputerAdaptiveTesting
 using DataFrames
 using FittedItemBanks: AbstractItemBank, ItemResponse, resp_vec
 using Random
 using RIrtWrappers: KernSmoothIRT, Mirt, require_mirtcat
 using Test
-
-CondaPkg.activate!(ENV)
 
 MirtCat = require_mirtcat()
 

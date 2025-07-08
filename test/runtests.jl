@@ -1,4 +1,7 @@
 using Test
+using CondaPkg
+
+CondaPkg.activate!(ENV)
 
 @testset "aqua" begin
     include("./aqua.jl")
