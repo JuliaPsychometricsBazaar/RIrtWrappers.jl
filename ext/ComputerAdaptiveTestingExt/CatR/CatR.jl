@@ -123,11 +123,10 @@ end
 
 function _update_theta_est(config::StatefulCatR)
     ensure_r_library_loaded()
-    R"options(warn = 2)"
     config.theta = R"""
     thetaEst(
         extract_items($(config.item_bank), $(config.responses.indices)),
-        x=$(config.responses.values),
+        $(config.responses.values),
         D=$(config.d_constant), 
         method=$(config.method),
         priorDist=$(config.prior_dist),
