@@ -1,4 +1,4 @@
-module MirtCat
+module MirtCAT
 
 using Random: Xoshiro
 using RCall
@@ -14,7 +14,7 @@ export make_mirtcat
 export plot
 export StatefulMirtCat, StatefulMirtCatNoRollbacks, StatefulMirtCatWithRollbacks
 
-include("./mirtcat/conversion.jl")
+include("./conversion.jl")
 
 const r_library_loaded = Ref{Bool}(false)
 
@@ -37,6 +37,8 @@ function r_helpers()
         for (i in seq_len(length(K))) {
             item_options[[i]] <- 0L:(K[i] - 1L)
         }
+        fscores_args <- test@fscores_args
+        fscores_args <- fscores_args[!names(fscores_args) %in% "rotate"]
         test <- new(
             'Test',
             mo=mo,
@@ -45,7 +47,7 @@ function r_helpers()
             item_options=item_options,
             quadpts_in=test@quadpts,
             theta_range_in=test@theta_range,
-            dots=test@fscores_args
+            dots=fscores_args
         )
     }
     """
@@ -73,7 +75,7 @@ end
 $(SIGNATURES)
 
 Makes an [MirtCatDesign](@ref) object from the given `mirt_params` which can be any
-supported implementation for [FittedItemBanks.AbstractItemBank)[@ref] or a raw R
+supported implementation for [FittedItemBanks.AbstractItemBank)[@extref] or a raw R
 object supported by `mirtCAT`'s `mo` argument.
 
 The `criteria`, `method`, `start_item` and `design` arguments will be passed
@@ -122,7 +124,7 @@ function add_response!(mirt_design::MirtCatDesign, index, value)
     ensure_r_library_loaded()
     design = mirt_design.inner
     new_design = R"""
-        updateDesign($design, $(index), $(value))
+    updateDesign($design, $index, $(Int(value)))
     """
     mirt_design.inner = new_design
 end
@@ -143,6 +145,7 @@ function add_response_with_rollback!(mirt_design::MirtCatDesign, new_item, new_r
         class(old_r_mirt_design) <- "mirtCAT_design"
         updateDesign($r_mirt_design, new_item = $new_item, new_response = $new_response)
     """
+    old_r_mirt_design = R"old_r_mirt_design"
     mirt_design.inner = new_r_mirt_design
     return (MirtCatDesign(old_r_mirt_design), mirt_design)
 end
@@ -171,6 +174,9 @@ function reset!(mirt_design::MirtCatDesign)
     return mirt_design
 end
 
+prepare_ability(x::AbstractMatrix) = dropdims(x; dims=1)
+prepare_ability(x::Number) = x
+
 function get_ability(mirt_design::MirtCatDesign)
     ensure_r_library_loaded()
     design = mirt_design.inner
@@ -180,7 +186,7 @@ function get_ability(mirt_design::MirtCatDesign)
     thetas_se = rcopy(R"""
         extract.mirtCAT($(design)$person, 'thetas_SE')
     """)
-    return (thetas, thetas_se)
+    return (prepare_ability(thetas), prepare_ability(thetas_se))
 end
 
 function get_ability_history(mirt_design::MirtCatDesign)
@@ -198,6 +204,26 @@ function get_criteria(mirt_design::MirtCatDesign)
     ensure_r_library_loaded()
     design = mirt_design.inner
     return rcopy(R"""$(design)$design@criteria""")
+end
+
+function get_iteminfo(mirt_design::MirtCatDesign, index, theta::AbstractVector; kwargs...)
+    return get_iteminfo(mirt_design, index, permutedims(theta); kwargs...)
+end
+
+function get_iteminfo(mirt_design::MirtCatDesign, index, theta; total_info=true, multidim_matrix=false)
+    return rcopy(R"""
+    mo <- extract.mirtCAT($(mirt_design.inner)$test, 'mo')
+    item <- extract.item(mo, $index)
+    iteminfo(item, $theta, degrees = NULL, total.info = $total_info, multidim_matrix = $multidim_matrix)
+    """)
+end
+
+function get_info_thetas(mirt_design::MirtCatDesign)
+    ensure_r_library_loaded()
+    design = mirt_design.inner
+    return rcopy(R"""
+        $(design)$person$info_thetas
+    """)
 end
 
 function should_terminate(mirt_design::MirtCatDesign)
@@ -219,11 +245,11 @@ function get_responses(mirt_design::MirtCatDesign)
     """)
     num_items_answered = count(x -> !ismissing(x), items_answered)
     items_answered_in_order = collect(Int, items_answered[1:num_items_answered])
-    responses_in_order = [responses[item_idx] for item_idx in items_answered_in_order]
-    return (items_answered_in_order, responses_in_order)
+    responses_in_order = Bool.(responses[item_idx] for item_idx in items_answered_in_order)
+    return BareResponses(BooleanResponse(), items_answered_in_order, responses_in_order)
 end
 
-function plot(mirt_design)
+function plot_cat(mirt_design)
     ensure_r_library_loaded()
     design = mirt_design.inner
     R"""
@@ -237,6 +263,22 @@ function plot(mirt_design)
     )
     plot(mirtcat_full)
     """
+end
+
+function plot_item_bank(mirt_design; kwargs...)
+    ensure_r_library_loaded()
+    design = mirt_design.inner
+    mo = R"""extract.mirtCAT($(design)$test, 'mo')"""
+    rcall(:plot, mo; kwargs...)
+
+    #=itemnames <- extract.mirt(mo, 'itemnames')
+    item_options <- extract.mirt(mo, 'item_options')
+    item_options <- lapply(item_options, function(x) {
+        if (is.null(x)) {
+            return(NULL)
+        }
+        return(as.character(x))
+    })=#
 end
 
 function fscores(mirt_design, method; kwargs...)
@@ -256,15 +298,15 @@ end
 """
 ```julia
 Sim.run_cat(
-    cat_config::Sim.CatLoopConfig{MirtCatDesign},
+    cat_config::Sim.CatLoop{MirtCatDesign},
     ib_labels = nothing
 )
 ````
 
-Run a CAT for a given CatLoopConfig based on a MirtCatDesign.
+Run a CAT for a given CatLoop based on a MirtCatDesign.
 See also [ComputerAdaptiveTesting.Sim.run_cat](@extref)
 """
-function Sim.run_cat(cat_config::Sim.CatLoopConfig{RulesT},
+function Sim.run_cat(cat_config::Sim.CatLoop{RulesT},
         ib_labels = nothing) where {RulesT <: MirtCatDesign}
     (; rules, get_response, new_response_callback) = cat_config
 
@@ -303,7 +345,7 @@ abstract type StatefulMirtCat <: Stateful.StatefulCat end
 """
 $(TYPEDEF)
 ```julia
-StatefulMirtCatWithRollbacks(design::MirtCatDesign) -> StatefulMirtCatWithRollbacks
+StatefulMirtCatNoRollbacks(design::MirtCatDesign) -> StatefulMirtCatNoRollbacks
 ```
 
 Adapter type for [MirtCatDesign](@ref) into a [ComputerAdaptiveTesting.Stateful](@extref) implementation.
@@ -328,8 +370,8 @@ struct StatefulMirtCatWithRollbacks{T} <: StatefulMirtCat
     rollbacks::Vector{MirtCatDesign{T}}
 end
 
-function StatefulMirtCatWithRollbacks(design::MirtCatDesign)
-    return StatefulMirtCatWithRollbacks(design, [])
+function StatefulMirtCatWithRollbacks(design::MirtCatDesign{T}) where {T}
+    return StatefulMirtCatWithRollbacks(design, MirtCatDesign{T}[])
 end
 
 function Stateful.next_item(config::StatefulMirtCat)
@@ -344,8 +386,13 @@ function Stateful.item_criteria(config::StatefulMirtCat)
     return compute_criteria(config.design)
 end
 
-function Stateful.add_response!(config::StatefulMirtCat, index, response)
+function Stateful.add_response!(config::StatefulMirtCatNoRollbacks, index, response)
     add_response!(config.design, index, response)
+end
+
+function Stateful.add_response!(config::StatefulMirtCatWithRollbacks, index, response)
+    rollback = add_response_with_rollback!(config.design, index, response)[1]
+    push!(config.rollbacks, rollback)
 end
 
 function Stateful.rollback!(::StatefulMirtCatNoRollbacks)
@@ -353,7 +400,10 @@ function Stateful.rollback!(::StatefulMirtCatNoRollbacks)
 end
 
 function Stateful.rollback!(config::StatefulMirtCatWithRollbacks)
-    rollback_cat_design = config.rollbacks.pop!()
+    if length(config.rollbacks) == 0
+        error("Cannot rollback: No rollbacks available")
+    end
+    rollback_cat_design = pop!(config.rollbacks)
     config.design.inner = rollback_cat_design.inner
 end
 
@@ -392,6 +442,26 @@ end
 
 function Stateful.get_ability(config::StatefulMirtCat)
     return get_ability(config.design)
+end
+
+function Stateful.item_bank_size(config::StatefulMirtCat)
+    rcopy(R"""
+    mo <- extract.mirtCAT($(config.design.inner)$test, 'mo')
+    extract.mirt(mo, 'nitems')
+    """)
+end
+
+function Stateful.item_response_functions(config::StatefulMirtCat, index, ability::AbstractVector)
+    return Stateful.item_response_functions(config, index, permutedims(ability))
+end
+
+function Stateful.item_response_functions(config::StatefulMirtCat, index, ability)
+    traceline = R"""
+    mo <- extract.mirtCAT($(config.design.inner)$test, 'mo')
+    item <- extract.item(mo, $index)
+    probtrace(item, $ability)
+    """
+    return rcopy(traceline)[1, :]
 end
 
 end
