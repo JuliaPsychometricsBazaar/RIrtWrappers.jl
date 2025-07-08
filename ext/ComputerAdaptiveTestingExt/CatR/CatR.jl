@@ -114,11 +114,11 @@ function StatefulCatR(
 end
 
 function _get_par_int(config::StatefulCatR)
-    return R"""c(
-        $(config.lower),
-        $(config.upper),
-        $(config.nqp)
-    )"""
+    return [
+        config.lower,
+        config.upper,
+        config.nqp
+    ]
 end
 
 function _update_theta_est(config::StatefulCatR)
