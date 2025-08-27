@@ -33,12 +33,13 @@ For example:
 
 ## Running CATs
 
-The [MirtCAT](@ref) module wraps an R library for simulating and administering CATs.
+The [MirtCAT](@ref) and [CatR](@ref) modules wrap an R libraries for simulating and administering CATs.
 
 You need to use the following method to get ahold of the module.
 
 ```@docs
 require_mirtcat
+require_catr
 ```
 
 The main objects from these always implement the

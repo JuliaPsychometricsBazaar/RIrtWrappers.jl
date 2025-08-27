@@ -2,7 +2,7 @@ module RIrtWrappers
 
 using DocStringExtensions
 
-export require_mirtcat
+export require_mirtcat, require_catr
 
 include("./Mirt.jl")
 include("./KernSmoothIRT.jl")
