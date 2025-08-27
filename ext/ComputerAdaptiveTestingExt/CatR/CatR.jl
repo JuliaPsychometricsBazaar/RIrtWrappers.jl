@@ -64,7 +64,7 @@ The `StatefulCatR` type implements the
 provided by the `catR` R package.
 
 The `item_bank` can be any
-supported implementation of [FittedItemBanks.AbstractItemBank](@ref) or a raw R
+supported implementation of [FittedItemBanks.AbstractItemBank](@extref) or a raw R
 object supported by `catR`.
 
 The `criterion`, `method`, `start_item` will be passed to `catR`'s `nextItem`

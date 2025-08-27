@@ -75,7 +75,7 @@ end
 $(SIGNATURES)
 
 Makes an [MirtCatDesign](@ref) object from the given `mirt_params` which can be any
-supported implementation for [FittedItemBanks.AbstractItemBank)[@extref] or a raw R
+supported implementation for [FittedItemBanks.AbstractItemBank](@extref) or a raw R
 object supported by `mirtCAT`'s `mo` argument.
 
 The `criteria`, `method`, `start_item`, `design`, `quadpts` and `theta_range`
