@@ -103,7 +103,7 @@ function make_mirtcat(
         kwargs[:theta_range] = collect(theta_range)
     end
     mirt_design = rcall(
-        :mirtCAT,
+        :mirtCAT;
         df=nothing,
         mo=mirt_params_prepared,
         design_elements=true,
