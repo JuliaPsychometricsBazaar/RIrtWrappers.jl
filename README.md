@@ -2,7 +2,7 @@
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliapsychometricsbazaar.github.io/RIrtWrappers.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliapsychometricsbazaar.github.io/RIrtWrappers.jl/dev/)
-[![Build Status](https://github.com/JuliaPsychometricsBazaar/RIrtWrappers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaPsychometricsBazaar/RIrtWrappers.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/JuliaPsychometricsBazaar/RIrtWrappers.jl/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/JuliaPsychometricsBazaar/RIrtWrappers.jl/actions/workflows/test.yml?query=branch%3Amain)
 
 ## What is it?
 
