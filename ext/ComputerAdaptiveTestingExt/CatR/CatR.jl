@@ -93,7 +93,10 @@ function StatefulCatR(
     method,
     prior_dist="norm",
     prior_par=@SVector[0.0, 1.0],
-    info_type="observed"
+    info_type="observed",
+    lower=-4.0,
+    upper=4.0,
+    nqp=33
 )
     item_bank_r, d_constant = prepare_item_bank_params(item_bank)
     StatefulCatR(;
@@ -107,9 +110,9 @@ function StatefulCatR(
         info_type,
         responses=BareResponses(BooleanResponse()),
         theta=R"NA",
-        lower=-4.0,
-        upper=4.0,
-        nqp=33
+        lower,
+        upper,
+        nqp
     )
 end
 

@@ -78,8 +78,8 @@ Makes an [MirtCatDesign](@ref) object from the given `mirt_params` which can be 
 supported implementation for [FittedItemBanks.AbstractItemBank)[@extref] or a raw R
 object supported by `mirtCAT`'s `mo` argument.
 
-The `criteria`, `method`, `start_item` and `design` arguments will be passed
-directly to R `mirtCAT` function.
+The `criteria`, `method`, `start_item`, `design`, `quadpts` and `theta_range`
+arguments will be passed directly to R `mirtCAT` function.
 
 The return value is tuple of the [MirtCatDesign](@ref) object, and the raw R
 object passed as the `mo` argument for the item bank.
@@ -89,21 +89,30 @@ function make_mirtcat(
     criteria = "seq",
     method = "MAP",
     start_item = 1,
-    design = (;)
+    design = (;),
+    quadpts = nothing,
+    theta_range = nothing,
 )::Tuple{MirtCatDesign, RObject}
     ensure_r_library_loaded()
     mirt_params_prepared = prepare_item_bank_params(mirt_params)
-    mirt_design = R"""
-        mirtCAT(
-            df=NULL,
-            mo=$mirt_params_prepared,
-            design_elements=TRUE,
-            criteria=$criteria,
-            method=$method,
-            start_item=$start_item,
-            design=$design
-        )
-    """
+    kwargs = Dict{Symbol, Any}()
+    if quadpts !== nothing
+        kwargs[:quadpts] = quadpts
+    end
+    if theta_range !== nothing
+        kwargs[:theta_range] = collect(theta_range)
+    end
+    mirt_design = rcall(
+        :mirtCAT,
+        df=nothing,
+        mo=mirt_params_prepared,
+        design_elements=true,
+        criteria=criteria,
+        method=method,
+        start_item=start_item,
+        design=design,
+        kwargs...
+    )
     (MirtCatDesign(mirt_design), mirt_params_prepared)
 end
 
