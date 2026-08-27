@@ -28,7 +28,7 @@ ComputerAdaptiveTestingExt = "ComputerAdaptiveTesting"
 
 [compat]
 Aqua = "^0.8.2"
-ArraysOfArrays = "^0.6.2"
+ArraysOfArrays = "0.6.2, 1"
 BSplines = "^0.3.3"
 ComputerAdaptiveTesting = "^0.4.0"
 CondaPkg = "0.2"
